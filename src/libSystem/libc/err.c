@@ -47,7 +47,7 @@ static char sccsid[] = "@(#)err.c	8.1 (Berkeley) 6/4/93";
 //#include "un-namespace.h"
 
 #ifdef __BLOCKS__
-#include <objc/blocks_runtime.h>
+#include <Block.h>
 #endif /* __BLOCKS__ */
 //#include "libc_private.h"
 

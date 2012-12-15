@@ -22,7 +22,7 @@ set(CoreFoundation_SRCS
 )
 
 add_library(CoreFoundation SHARED ${CoreFoundation_SRCS})
-target_link_libraries(CoreFoundation -lgnustep-corebase objc.A.dylib)
+target_link_libraries(CoreFoundation -lgnustep-base objc.A.dylib)
 
 install(TARGETS CoreFoundation DESTINATION "lib${SUFFIX}/darling")
 

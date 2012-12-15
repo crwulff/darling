@@ -26,7 +26,7 @@ endif(SUFFIX STREQUAL "32")
 
 enable_language(ASM-ATT)
 enable_language(ASM_NASM)
-ADD_DEFINITIONS(-ggdb -DDEBUG)
+ADD_DEFINITIONS(-ggdb -DDEBUG -D_NATIVE_OBJC_EXCEPTIONS)
 #ADD_DEFINITIONS(-O3)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -36,6 +36,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/xnu/bsd)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/darwin)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/libmach-o)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/util)
+include_directories(/usr/include/GNUstep)
 include_directories(${CMAKE_BINARY_DIR}) # for config.h
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
