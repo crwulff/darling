@@ -40,6 +40,10 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include <errno.h>
 #include <dlfcn.h>
 
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 0x1000
+#endif
+
 FileMap g_file_map;
 static std::vector<std::string> g_bound_names;
 
@@ -183,7 +187,7 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base)
 			maxprot |= PROT_EXEC;
 		
 
-		intptr filesize = alignMem(seg->filesize, 0x1000);
+		intptr filesize = alignMem(seg->filesize, PAGE_SIZE);
 		intptr vmaddr = seg->vmaddr + *slide;
 		
 		if (vmaddr < m_last_addr)
@@ -197,28 +201,67 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base)
 		}
 		*base = std::min(*base, vmaddr);
 
-		intptr vmsize = alignMem(seg->vmsize, 0x1000);
+		intptr vmsize = alignMem(seg->vmsize, PAGE_SIZE);
 		LOG << "mmap(file) " << mach.filename() << ' ' << name
 			<< ": " << (void*)vmaddr << "-" << (void*)(vmaddr + filesize)
 			<< " offset=" << mach.offset() + seg->fileoff <<std::endl;
 		
-		if (filesize == 0)
-			continue;
-		
 		checkMmapMinAddr(vmaddr);
 		
-		void* mapped = ::mmap((void*)vmaddr, filesize, maxprot, MAP_PRIVATE | MAP_FIXED, mach.fd(), mach.offset() + seg->fileoff);
-
-		m_mprotects.push_back(MProtect{(void*) vmaddr, filesize, prot});
-		
-		if (mapped == MAP_FAILED)
+		if (filesize != 0)
 		{
-			std::stringstream ss;
-			ss << "Failed to mmap '" << mach.filename() << "': " << strerror(errno);
-			throw std::runtime_error(ss.str());
-		}
+			intptr segfileoff = mach.offset() + seg->fileoff;
+
+			if ((segfileoff & (PAGE_SIZE - 1)) == (vmaddr & (PAGE_SIZE - 1)))
+			{
+				// vmaddr and file offset match page alignment. Round down to the nearest page boundary.
+				filesize += vmaddr & (PAGE_SIZE - 1);
+				segfileoff &= ~(PAGE_SIZE - 1);
+				vmaddr &= ~(PAGE_SIZE - 1);
+
+				void *mapped = ::mmap((void*)vmaddr, filesize, maxprot, MAP_PRIVATE | MAP_FIXED, mach.fd(), mach.offset() + seg->fileoff);
+
+				if (mapped == MAP_FAILED)
+				{
+					std::stringstream ss;
+					ss << "Failed to mmap '" << mach.filename() << "': " << strerror(errno);
+					throw std::runtime_error(ss.str());
+				}
+			}
+			else
+			{
+				// Segment is misaligned in the file so read the file into an anon map instead.
+				// This is slower but mmap can't handle unaligned file pages on Linux.
+				void *mapped = ::mmap((void*)vmaddr, filesize, maxprot, MAP_PRIVATE | MAP_FIXED | MAP_ANONYMOUS, 0, 0);
+
+				if (mapped == MAP_FAILED)
+				{
+					std::stringstream ss;
+					ss << "Failed to mmap '" << mach.filename() << "': " << strerror(errno);
+					throw std::runtime_error(ss.str());
+				}
+
+				if (segfileoff != ::lseek(mach.fd(), segfileoff, SEEK_SET))
+				{
+					std::stringstream ss;
+					ss << "Failed to seek '" << mach.filename() << "' to " << segfileoff << ": " << strerror(errno);
+					throw std::runtime_error(ss.str());
+				}
+
+				ssize_t readsize = ::read(mach.fd(), mapped, seg->filesize);
+
+				if (seg->filesize != readsize)
+				{
+					std::stringstream ss;
+					ss << "Failed to read '" << mach.filename() << "' offset " << segfileoff << " size " << seg->filesize  << "(read " << readsize << "): " << strerror(errno);
+					throw std::runtime_error(ss.str());
+				}
+			}
+
+			m_mprotects.push_back(MProtect{(void*) vmaddr, filesize, prot});
 		
-		assert(vmsize >= filesize);
+			assert(vmsize >= filesize);
+		}
 
 		if (vmsize > filesize)
 		{
