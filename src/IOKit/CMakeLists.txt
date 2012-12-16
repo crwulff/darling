@@ -30,7 +30,7 @@ set(IOKit_SRCS
 )
 
 add_library(IOKit SHARED ${IOKit_SRCS})
-target_link_libraries(IOKit -lgnustep-base util -ludev)
+target_link_libraries(IOKit -lgnustep-corebase util -ludev)
 
 install(TARGETS IOKit DESTINATION "lib${SUFFIX}/darling")
 

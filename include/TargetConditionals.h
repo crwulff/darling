@@ -1,1 +1,0 @@
-../../opencflite/trunk/include/TargetConditionals.h

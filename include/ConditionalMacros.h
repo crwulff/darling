@@ -1,1 +1,0 @@
-../../opencflite/trunk/include/ConditionalMacros.h
