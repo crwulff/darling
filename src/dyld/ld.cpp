@@ -45,7 +45,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 static Darling::Mutex g_ldMutex;
 static std::map<std::string, LoadedLibrary*> g_ldLibraries;
-static __thread char g_ldError[256] = "";
+static __thread char g_ldError[1024] = "";
 static regex_t g_reAutoMappable;
 static LoadedLibrary g_dummyLibrary;
 
@@ -106,7 +106,7 @@ static void initLD()
 static std::string replacePathPrefix(const char* prefix, const char* prefixed, const char* replacement)
 {
 	std::string path = replacement;
-	char* repl = new char[strlen(replacement)];
+	char* repl = new char[strlen(replacement)+1];
 	
 	strcpy(repl, replacement);
 	path = dirname(repl);
@@ -411,7 +411,7 @@ void* attemptDlopen(const char* filename, int flag)
 				if (err && !g_ldError[0]) // we don't overwrite previous errors
 				{
 					LOG << "Library failed to load: " << err << std::endl;
-					strcpy(g_ldError, err);
+					strncpy(g_ldError, err, sizeof(g_ldError)-1);
 				}
 				return 0;
 			}
@@ -459,7 +459,7 @@ void* attemptDlopen(const char* filename, int flag)
 			}
 			catch (const std::exception& e)
 			{
-				strcpy(g_ldError, e.what());
+				strncpy(g_ldError, e.what(), sizeof(g_ldError)-1);
 				return 0;
 			}
 		}
