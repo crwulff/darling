@@ -55,14 +55,12 @@ static const char* g_searchPath[] = {
 	"/usr/lib", "/usr/local/lib", "/lib",
 };
 
-/*
 static const char* g_rpathSearch[] = {
 	"",
 	"/Frameworks/",
 	"/OtherFrameworks/",
 	"/SharedFrameworks/",
 };
-*/
 
 static const char* g_suffixes[] = { "$DARWIN_EXTSN", "$UNIX2003", "$NOCANCEL" };
 static IniConfig* g_iniConfig = 0;
@@ -173,8 +171,7 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 		// @rpath - https://wincent.com/wiki/@executable_path,_@load_path_and_@rpath
 		for (std::string rpathSearch : rpaths)
 		{
-			//for (const char* extraSuffix : g_rpathSearch) // TODO: do we need this?
-			const char* extraSuffix = "";
+			for (const char* extraSuffix : g_rpathSearch) // TODO: do we need this?
 			{
 				bool recNotFoundError;
 				rpathSearch += extraSuffix;

@@ -27,7 +27,7 @@ set(CoreServices_SRCS
 
 add_library(CoreServices SHARED ${CoreServices_SRCS})
 target_link_libraries(CoreServices -licuuc System.B.dylib util
-	-lgnustep-corebase)
+	-lgnustep-base)
 
 install(TARGETS CoreServices DESTINATION "lib${SUFFIX}/darling")
 
