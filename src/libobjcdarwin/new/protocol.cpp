@@ -8,6 +8,7 @@
 
 void AddClassProtocols(Class c, const protocol_list_t* list, intptr_t slide)
 {
+	slide = 0; // Slide appears already applied to protocols?
 	for (size_t i = 0; i < list->count; i++)
 	{
 		const char* name = list->elem(i, slide)->name;
@@ -67,6 +68,8 @@ void ProcessProtocolsNew(const struct mach_header* mh, intptr_t slide)
 {
 	const protocol_t** protocol_list;
 	unsigned long protosize;
+
+	slide = 0; // Slide appears already applied to protocols?
 
 	protocol_list = reinterpret_cast<const protocol_t**>(
 		getsectdata(mh, SEG_OBJC_PROTOLIST_NEW, SECT_OBJC_PROTOLIST_NEW, &protosize)
