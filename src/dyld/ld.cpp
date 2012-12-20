@@ -190,8 +190,8 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 			for (const char* extraSuffix : g_rpathSearch) // TODO: do we need this?
 			{
 				bool recNotFoundError;
-				rpathSearch += extraSuffix;
-				path = replacePathPrefix("@rpath", filename, rpathSearch.c_str());
+				std::string rpathSearchExtra = rpathSearch + extraSuffix;
+				path = replacePathPrefix("@rpath", filename, rpathSearchExtra.c_str());
 				
 				RET_IF( DlopenWithContext(path.c_str(), flag, rpaths, &recNotFoundError) );
 
