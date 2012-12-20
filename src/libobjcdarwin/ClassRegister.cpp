@@ -21,6 +21,13 @@
 // Neither do category class references
 std::map<const void*,Class> g_classPointers;
 
+void RegisterNativeClass(void* cls)
+{
+	LOG << "Register Native Class @ " << cls << std::endl;
+	class_getSuperclass(reinterpret_cast<Class>(cls)); // HACK to force the class to be resolved
+	g_classPointers[cls] = reinterpret_cast<Class>(cls);
+}
+
 // Here we process Mach-O files that have been loaded before this native library
 // Then we register a handler to process all images loaded in the future
 __attribute__((constructor))
@@ -34,6 +41,7 @@ __attribute__((constructor))
 
 	_dyld_register_func_for_add_image(ProcessImageLoad);
 	_dyld_register_func_for_remove_image(ProcessImageUnload);
+	_dyld_register_func_for_add_objc_class(RegisterNativeClass);
 	
 	//std::cout << "Done registering\n";
 }

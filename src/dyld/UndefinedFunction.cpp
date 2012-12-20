@@ -18,10 +18,18 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "UndefinedFunction.h"
+#include "../libobjcdarwin/ClassRegister.h"
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdexcept>
 #include <dlfcn.h>
+#include <string.h>
+#include <map>
+#include <set>
+#include <objc/runtime.h>
+#include "public.h"
+
+extern std::set<ClassRegisterHookFunc*> g_objcClassHooks;
 
 UndefMgr::UndefMgr(int entries)
 : m_nNext(0)
@@ -35,7 +43,7 @@ UndefMgr::UndefMgr(int entries)
 	mem = ::mmap(0, bytes, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (mem == MAP_FAILED)
 		throw std::runtime_error("Failed to map pages for UndefMgr");
-	
+
 	m_pMem = static_cast<UndefinedFunction*>(mem);
 	m_nMax = bytes / sizeof(UndefinedFunction);
 	m_nBytes = bytes;
@@ -48,11 +56,62 @@ UndefMgr::~UndefMgr()
 
 void* UndefMgr::generateNew(const char* name)
 {
-	if (m_nNext >= m_nMax)
-		throw std::runtime_error("UndefMgr buffer full");
+	if ((strncmp(name, "OBJC_CLASS", 10) == 0) ||
+	    (strncmp(name, "OBJC_METACLASS", 14) == 0))
+	{
+		// Objective-C class or metaclass info
+		static std::map<std::string, Class> undefClasses;
+		Class classStub = nullptr;
+		auto classIter = undefClasses.find(name);
+		if (classIter != undefClasses.end())
+		{
+			classStub = classIter->second;
+		}
+		else
+		{
+			classStub = objc_allocateClassPair(nullptr, name, 0);
+			objc_registerClassPair(classStub);
+			for (ClassRegisterHookFunc* func : g_objcClassHooks)
+			{
+				func(classStub);
+			}
+			undefClasses[name] = classStub;
+		}
+
+		if (strncmp(name, "OBJC_CLASS", 10) == 0)
+		{
+			return classStub;
+		}
+		else
+		{
+			return object_getClass(reinterpret_cast<id>(classStub));
+		}
+	}
+	else if (strncmp(name, "OBJC_IVAR", 9) == 0)
+	{
+		// Objective-C ivar
+		typedef struct 
+		{
+			const char *name;
+			const char *type;
+			int         offset;
+		} objc_ivar;
+
+		objc_ivar *ivarStub = new objc_ivar;
+		ivarStub->name = name;
+		ivarStub->type = "";
+		ivarStub->offset = 0;
+		return ivarStub;
+	}
+	else
+	{
+		// Generate a function stub
+		if (m_nNext >= m_nMax)
+			throw std::runtime_error("UndefMgr buffer full");
 	
-	m_pMem[m_nNext].init(name);
-	return &m_pMem[m_nNext++];
+		m_pMem[m_nNext].init(name);
+		return &m_pMem[m_nNext++];
+	}
 }
 
 void UndefinedFunction::init(const char* name)

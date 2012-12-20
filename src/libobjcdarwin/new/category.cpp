@@ -33,7 +33,18 @@ void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide)
 		if (itClass != g_classPointers.end())
 			c = itClass->second;
 		else
-			c = reinterpret_cast<Class>(cat->cls);
+		{
+			// These should all already have been processed. Native classes should all be registered already too.
+			std::cout << "Error: unregistered class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
+			//c = reinterpret_cast<Class>(cat->cls);
+			continue;
+		}
+
+		if (nullptr == c)
+		{
+			std::cout << "Error: null Class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
+			continue;
+		}
 			
 		LOG << "Processing category " << cat->name << " on top of class @" << c << std::endl;
 

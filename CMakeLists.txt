@@ -87,7 +87,7 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")
 #SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--enable-new-dtags")
 
 add_executable(dyld${SUFFIX} ${dyld_SRCS})
-target_link_libraries(dyld${SUFFIX} -ldl -lpthread mach-o util)
+target_link_libraries(dyld${SUFFIX} -ldl -lpthread mach-o util -lobjc)
 
 #set(fatmacho-extract_SRCS
 #	src/dyld/extract.cpp

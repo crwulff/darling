@@ -17,15 +17,41 @@ Class RegisterClass(const class_t* cls, intptr_t slide)
 	LOG << "Processing ObjC class " << cls->data()->className << std::endl;
 	
 	const class_t* meta = cls->isa;
-	Class conv, super;
+	Class conv, super = nullptr;
 	auto itSuper = g_classPointers.find(cls->superclass);
 
 	if (itSuper != g_classPointers.end())
+	{
 		super = itSuper->second;
-	else
-		super = reinterpret_cast<Class>(cls->superclass);
+	}
+	else if (nullptr != cls->superclass)
+	{
+		super = RegisterClass(cls->superclass, 0);
+	}
 	
 	LOG << "...superclass is @" << super << std::endl;
+	if (nullptr != super)
+	{
+		LOG << "...superclass name " << (((uintptr_t)super != (uintptr_t)cls->superclass) ? cls->superclass->data()->className : class_getName(super)) << std::endl;
+		LOG << "...super name " << class_getName(super) << std::endl;
+	}
+
+	if (nullptr == cls->data())
+	{
+		// TODO: Is this a bad pointer filled in, or are we supposed to do something different with this?
+		// This is from when we call RegisterClass recursively sometimes...
+		std::cout << "Error - Null class data at class @" << cls << std::endl;
+		return nullptr;
+	}
+
+	if (nullptr == cls->data()->className)
+	{
+		// TODO: Is this a bad pointer filled in, or are we supposed to do something different with this?
+		// This is from when we call RegisterClass recursively sometimes...
+		std::cout << "Error - Null class name at class @" << cls << std::endl;
+		return nullptr;
+	}
+
 	conv = objc_allocateClassPair(super, cls->data()->className, 0);
 	
 	const class_ro_t* ro = cls->data();
@@ -49,6 +75,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide)
 	
 	objc_registerClassPair(conv);
 	LOG << "ObjC class " << cls->data()->className << " now @" << conv << std::endl;
+	class_getSuperclass(conv); // HACK to force the class to be resolved (gnustep-libobjc2 blows up because cls->isa->isa is a char* still otherwise when we next use it as a superclass)
 	g_classPointers[cls] = conv;
 
 	return conv;

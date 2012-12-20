@@ -46,6 +46,9 @@ char* getsectdata(const struct mach_header* header, const char* segname, const c
 void _dyld_register_func_for_add_image(LoaderHookFunc* func);
 void _dyld_register_func_for_remove_image(LoaderHookFunc* func);
 
+typedef void (ClassRegisterHookFunc)(void* cls);
+void _dyld_register_func_for_add_objc_class(ClassRegisterHookFunc* func);
+
 int32_t NSVersionOfRunTimeLibrary(const char* libraryName);
 
 int32_t NSVersionOfLinkTimeLibrary(const char* libraryName);

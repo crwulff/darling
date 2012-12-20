@@ -42,6 +42,10 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <algorithm>
 #include <execinfo.h>
+#include <set>
+#include "public.h"
+
+extern std::set<ClassRegisterHookFunc*> g_objcClassHooks;
 
 static Darling::Mutex g_ldMutex;
 static std::map<std::string, LoadedLibrary*> g_ldLibraries;
@@ -592,7 +596,17 @@ void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 		LOG << "Trying " << translated << std::endl;
 		sym = ::dlsym(RTLD_DEFAULT, translated);
 		if (sym)
+		{
+			if (strncmp(translated, "_OBJC_CLASS", 11) == 0)
+			{
+				for (ClassRegisterHookFunc* func : g_objcClassHooks)
+				{
+					func(sym);
+				}
+			}
+
 			return sym;
+		}
 
 		// Now we fail
 		snprintf(g_ldError, sizeof(g_ldError)-1, "Cannot find symbol '%s'", symbol);

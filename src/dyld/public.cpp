@@ -35,6 +35,7 @@ extern FileMap g_file_map;
 extern "C" char* dyld_getDarwinExecutablePath();
 
 std::set<LoaderHookFunc*> g_machoLoaderHooks;
+std::set<ClassRegisterHookFunc*> g_objcClassHooks;
 
 uint32_t _dyld_image_count(void)
 {
@@ -104,6 +105,11 @@ void _dyld_register_func_for_add_image(LoaderHookFunc* func)
 void _dyld_register_func_for_remove_image(LoaderHookFunc* func)
 {
 	g_machoLoaderHooks.erase(func);
+}
+
+void _dyld_register_func_for_add_objc_class(ClassRegisterHookFunc* func)
+{
+	g_objcClassHooks.insert(func);
 }
 
 int32_t NSVersionOfRunTimeLibrary(const char* libraryName)

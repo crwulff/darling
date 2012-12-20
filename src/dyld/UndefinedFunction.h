@@ -42,7 +42,7 @@ struct UndefinedFunction
 class UndefMgr
 {
 public:
-	UndefMgr(int entries = 300);
+	UndefMgr(int entries = 10000);
 	~UndefMgr();
 	
 	// the name must be persistent!
