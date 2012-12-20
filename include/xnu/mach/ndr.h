@@ -34,7 +34,7 @@
 
 #include <stdint.h>
 #include <sys/cdefs.h>
-#include <libkern/OSByteOrder.h>
+//#include <libkern/OSByteOrder.h>
 
 
 typedef struct {

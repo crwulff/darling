@@ -1,4 +1,5 @@
 #include "auto.h"
+#include "xnu/mach/i386/ndr_def.h"
 
 int Darling::flagsDarwinToNative(const MappedFlag* flags, size_t count, int darwin)
 {
