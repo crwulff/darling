@@ -14,7 +14,7 @@ extern std::map<const void*,Class> g_classPointers;
 
 Class RegisterClass(const class_t* cls, intptr_t slide)
 {
-	LOG << "Processing ObjC class " << cls->data()->className << std::endl;
+	LOG << "Processing ObjC class " << ((cls && cls->data()) ? cls->data()->className : "???") << std::endl;
 	
 	const class_t* meta = cls->isa;
 	Class conv, super = nullptr;
