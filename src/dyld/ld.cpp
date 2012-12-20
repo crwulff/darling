@@ -14,7 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "config.h"
@@ -77,7 +77,6 @@ static std::list<Darling::DlsymHookFunc> g_dlsymHooks;
 extern MachO* g_mainBinary;
 extern MachOLoader* g_loader;
 extern char g_darwin_executable_path[PATH_MAX];
-extern char g_darwin_loader_path[PATH_MAX];
 extern char g_sysroot[PATH_MAX];
 extern int g_argc;
 extern char** g_argv;
@@ -110,13 +109,7 @@ static void initLD()
 static std::string replacePathPrefix(const char* prefix, const char* prefixed, const char* replacement)
 {
 	std::string path = replacement;
-	char* repl = new char[strlen(replacement)+1];
-	
-	strcpy(repl, replacement);
-	path = dirname(repl);
 	path += (prefixed + strlen(prefix));
-	
-	delete [] repl;
 	return path;
 }
 
@@ -172,13 +165,13 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 	if (strncmp(filename, "@executable_path", 16) == 0)
 	{
 		path = replacePathPrefix("@executable_path", filename, g_darwin_executable_path);
-		//std::cout << "Full path: " << path << std::endl;
+		LOG << "Full path after replacing @executable_path: " << path << std::endl;
 		if (::access(path.c_str(), R_OK) == 0)
 			RET_IF( attemptDlopen(path.c_str(), flag) );
 	}
 	else if (strncmp(filename, "@loader_path", 12) == 0)
 	{
-		path = replacePathPrefix("@loader_path", filename, g_darwin_loader_path);
+		path = replacePathPrefix("@loader_path", filename, g_loader->getCurrentLoader().c_str());
 		if (::access(path.c_str(), R_OK) == 0)
 			RET_IF( attemptDlopen(path.c_str(), flag) );
 	}
