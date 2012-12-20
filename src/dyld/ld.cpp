@@ -157,6 +157,18 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 	
 	flag = translateFlags(flag);
 
+	// Apply aliases first
+	if (g_iniConfig && g_iniConfig->hasSection("aliases"))
+	{
+		const IniConfig::ValueMap* m = g_iniConfig->getSection("aliases");
+		if (map_contains(*m, filename))
+		{
+			path = map_get(*m, filename);
+			LOG << "Trying " << path << std::endl;
+			RET_IF( attemptDlopen(path.c_str(), flag) );
+		}
+	}
+
 	if (strncmp(filename, "@executable_path", 16) == 0)
 	{
 		path = replacePathPrefix("@executable_path", filename, g_darwin_executable_path);
