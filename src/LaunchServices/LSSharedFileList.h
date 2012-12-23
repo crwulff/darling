@@ -1,0 +1,25 @@
+
+#include <CoreFoundation/CFString.h>
+
+extern "C" {
+
+typedef struct OpaqueLSSharedFileListRef*  LSSharedFileListRef;
+typedef struct OpaqueLSSharedFileListItemRef*  LSSharedFileListItemRef;
+
+extern CFStringRef kLSSharedFileListFavoriteVolumes;
+extern CFStringRef kLSSharedFileListFavoriteItems;
+extern CFStringRef kLSSharedFileListRecentApplicationItems;
+extern CFStringRef kLSSharedFileListRecentDocumentItems;
+extern CFStringRef kLSSharedFileListRecentServerItems;
+extern CFStringRef kLSSharedFileListSessionLoginItems;
+extern CFStringRef kLSSharedFileListGlobalLoginItems;
+extern CFStringRef kLSSharedFileListRecentItemsMaxAmount;
+extern CFStringRef kLSSharedFileListVolumesComputerVisible;
+extern CFStringRef kLSSharedFileListVolumesIDiskVisible;
+extern CFStringRef kLSSharedFileListVolumesNetworkVisible;
+extern LSSharedFileListItemRef kLSSharedFileListItemBeforeFirst;
+extern LSSharedFileListItemRef kLSSharedFileListItemLast;
+extern CFStringRef kLSSharedFileListItemHidden;
+extern CFStringRef kLSSharedFileListLoginItemHidden;
+
+}

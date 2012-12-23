@@ -1,4 +1,4 @@
-project(LaunchServices)
+project(Metadata)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -17,15 +17,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
-set(LaunchServices_SRCS
-	LSInfo.cpp
-	LSSharedFileList.cpp
-	UTCoreTypes.cpp
-	UTType.cpp
+set(Metadata_SRCS
+	MDItem.cpp
+	MDQuery.cpp
 )
 
-add_library(LaunchServices SHARED ${LaunchServices_SRCS})
-target_link_libraries(LaunchServices -lgnustep-corebase objc.A.dylib)
+add_library(Metadata SHARED ${Metadata_SRCS})
+target_link_libraries(Metadata -lgnustep-corebase objc.A.dylib)
 
-install(TARGETS LaunchServices DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS Metadata DESTINATION "lib${SUFFIX}/darling")
 
