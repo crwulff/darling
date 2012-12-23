@@ -1,4 +1,4 @@
-project(AppKit)
+project(Security)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -10,24 +10,22 @@ endif(COMMAND cmake_policy)
 #endif (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 
 #configure_file(config.h.in config.h)
-
-# CMake is broken and uses C++ flags for ObjC
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
-set(AppKit_SRCS
-	NSAccessibility.m
-	NSImage.m
-	NSKeyValueBinding.m
-	NSPasteboard.m
+set(Security_SRCS
+	oidcert.cpp
+	oidsalg.cpp
+	oidsattr.cpp
+	SecItem.cpp
 )
 
-add_library(AppKit SHARED ${AppKit_SRCS})
-target_link_libraries(AppKit -Wl,--no-as-needed CoreImage Security)
-SET_TARGET_PROPERTIES(AppKit PROPERTIES LINKER_LANGUAGE C)
+add_library(Security SHARED ${Security_SRCS})
+target_link_libraries(Security)
 
-install(TARGETS AppKit DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS Security DESTINATION "lib${SUFFIX}/darling")
 
