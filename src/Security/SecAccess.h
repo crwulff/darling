@@ -1,0 +1,28 @@
+
+#include <CoreFoundation/CFBase.h>
+
+extern "C" {
+
+extern CFTypeRef kSecACLAuthorizationAny;
+extern CFTypeRef kSecACLAuthorizationLogin;
+extern CFTypeRef kSecACLAuthorizationGenKey;
+extern CFTypeRef kSecACLAuthorizationDelete;
+extern CFTypeRef kSecACLAuthorizationExportWrapped;
+extern CFTypeRef kSecACLAuthorizationExportClear;
+extern CFTypeRef kSecACLAuthorizationImportWrapped;
+extern CFTypeRef kSecACLAuthorizationImportClear;
+extern CFTypeRef kSecACLAuthorizationSign;
+extern CFTypeRef kSecACLAuthorizationEncrypt;
+extern CFTypeRef kSecACLAuthorizationDecrypt;
+extern CFTypeRef kSecACLAuthorizationMAC;
+extern CFTypeRef kSecACLAuthorizationDerive;
+extern CFTypeRef kSecACLAuthorizationKeychainCreate;
+extern CFTypeRef kSecACLAuthorizationKeychainDelete;
+extern CFTypeRef kSecACLAuthorizationKeychainItemRead;
+extern CFTypeRef kSecACLAuthorizationKeychainItemInsert;
+extern CFTypeRef kSecACLAuthorizationKeychainItemModify;
+extern CFTypeRef kSecACLAuthorizationKeychainItemDelete;
+extern CFTypeRef kSecACLAuthorizationChangeACL;
+extern CFTypeRef kSecACLAuthorizationChangeOwner;
+
+}

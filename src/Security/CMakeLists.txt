@@ -22,6 +22,10 @@ set(Security_SRCS
 	oidsalg.cpp
 	oidsattr.cpp
 	SecItem.cpp
+	SecAccess.cpp
+	SecAsn1Templates.cpp
+	SecCertificateOIDs.cpp
+	SecCode.cpp
 )
 
 add_library(Security SHARED ${Security_SRCS})
