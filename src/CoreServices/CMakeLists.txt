@@ -26,8 +26,8 @@ set(CoreServices_SRCS
 )
 
 add_library(CoreServices SHARED ${CoreServices_SRCS})
-target_link_libraries(CoreServices -licuuc System.B.dylib util
-	-lgnustep-corebase)
+target_link_libraries(CoreServices -Wl,--no-as-needed -licuuc System.B.dylib util
+	-lgnustep-corebase ColorSync LaunchServices)
 
 install(TARGETS CoreServices DESTINATION "lib${SUFFIX}/darling")
 

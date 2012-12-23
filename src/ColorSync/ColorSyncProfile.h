@@ -1,0 +1,18 @@
+
+#include <CoreFoundation/CFString.h>
+
+CF_EXPORT CFStringRef kColorSyncGenericGrayProfile;
+CF_EXPORT CFStringRef kColorSyncGenericGrayGamma22Profile;
+CF_EXPORT CFStringRef kColorSyncGenericRGBProfile;
+CF_EXPORT CFStringRef kColorSyncGenericCMYKProfile;
+CF_EXPORT CFStringRef kColorSyncSRGBProfile;
+CF_EXPORT CFStringRef kColorSyncAdobeRGB1998Profile;
+CF_EXPORT CFStringRef kColorSyncGenericLabProfile;
+CF_EXPORT CFStringRef kColorSyncGenericXYZProfile;
+CF_EXPORT CFStringRef kColorSyncProfileHeader;
+CF_EXPORT CFStringRef kColorSyncProfileClass;
+CF_EXPORT CFStringRef kColorSyncProfileColorSpace;
+CF_EXPORT CFStringRef kColorSyncProfilePCS;
+CF_EXPORT CFStringRef kColorSyncProfileURL;
+CF_EXPORT CFStringRef kColorSyncProfileDescription;
+CF_EXPORT CFStringRef kColorSyncProfileMD5Digest;

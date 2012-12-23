@@ -1,4 +1,4 @@
-project(CoreFoundation)
+project(LaunchServices)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -17,13 +17,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
-set(CoreFoundation_SRCS
-	NameTranslate.cpp
-	CFConstants.cpp
+set(LaunchServices_SRCS
+	UTCoreTypes.cpp
+	UTType.cpp
 )
 
-add_library(CoreFoundation SHARED ${CoreFoundation_SRCS})
-target_link_libraries(CoreFoundation -lgnustep-corebase objc.A.dylib)
+add_library(LaunchServices SHARED ${LaunchServices_SRCS})
+target_link_libraries(LaunchServices -lgnustep-corebase objc.A.dylib)
 
-install(TARGETS CoreFoundation DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS LaunchServices DESTINATION "lib${SUFFIX}/darling")
 

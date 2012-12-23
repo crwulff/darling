@@ -6,7 +6,9 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 add_library(Cocoa SHARED zero.c)
-target_link_libraries(Cocoa -lgnustep-gui -lopal crashhandler CoreFoundation -lobjc -Wl,--no-as-needed)
+target_link_libraries(Cocoa  -Wl,--no-as-needed
+	-lgnustep-gui -lopal crashhandler CoreFoundation
+	Foundation -lobjc)
 
 install(TARGETS Cocoa DESTINATION "lib${SUFFIX}/darling")
 

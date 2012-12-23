@@ -1,4 +1,4 @@
-project(CoreFoundation)
+project(AppKit)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -10,20 +10,24 @@ endif(COMMAND cmake_policy)
 #endif (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 
 #configure_file(config.h.in config.h)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
+
+# CMake is broken and uses C++ flags for ObjC
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
-set(CoreFoundation_SRCS
-	NameTranslate.cpp
-	CFConstants.cpp
+set(AppKit_SRCS
+	NSAccessibility.m
+	NSImage.m
+	NSKeyValueBinding.m
+	NSPasteboard.m
 )
 
-add_library(CoreFoundation SHARED ${CoreFoundation_SRCS})
-target_link_libraries(CoreFoundation -lgnustep-corebase objc.A.dylib)
+add_library(AppKit SHARED ${AppKit_SRCS})
+target_link_libraries(AppKit -Wl,--no-as-needed CoreImage)
+SET_TARGET_PROPERTIES(AppKit PROPERTIES LINKER_LANGUAGE C)
 
-install(TARGETS CoreFoundation DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS AppKit DESTINATION "lib${SUFFIX}/darling")
 

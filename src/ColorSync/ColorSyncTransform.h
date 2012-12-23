@@ -1,0 +1,29 @@
+
+#include <CoreFoundation/CFString.h>
+
+CF_EXPORT CFStringRef kColorSyncProfile;
+CF_EXPORT CFStringRef kColorSyncRenderingIntent;
+CF_EXPORT CFStringRef kColorSyncRenderingIntentPerceptual;
+CF_EXPORT CFStringRef kColorSyncRenderingIntentRelative;
+CF_EXPORT CFStringRef kColorSyncRenderingIntentSaturation;
+CF_EXPORT CFStringRef kColorSyncRenderingIntentAbsolute;
+CF_EXPORT CFStringRef kColorSyncRenderingIntentUseProfileHeader;
+CF_EXPORT CFStringRef kColorSyncTransformTag;
+CF_EXPORT CFStringRef kColorSyncTransformDeviceToPCS;
+CF_EXPORT CFStringRef kColorSyncTransformPCSToPCS;
+CF_EXPORT CFStringRef kColorSyncTransformPCSToDevice;
+CF_EXPORT CFStringRef kColorSyncTransformDeviceToDevice;
+CF_EXPORT CFStringRef kColorSyncTransformGamutCheck;
+CF_EXPORT CFStringRef kColorSyncBlackPointCompensation;
+CF_EXPORT CFStringRef kColorSyncPreferredCMM;
+CF_EXPORT CFStringRef kColorSyncConvertQuality;
+CF_EXPORT CFStringRef kColorSyncBestQuality;
+CF_EXPORT CFStringRef kColorSyncNormalQuality;
+CF_EXPORT CFStringRef kColorSyncDraftQuality;
+CF_EXPORT CFStringRef kColorSyncConvertThreadCount;
+CF_EXPORT CFStringRef kColorSyncConvertUseVectorUnit;
+CF_EXPORT CFStringRef kColorSyncTranformInfo;
+CF_EXPORT CFStringRef kColorSyncTransformCreator;
+CF_EXPORT CFStringRef kColorSyncTransformSrcSpace;
+CF_EXPORT CFStringRef kColorSyncTransformDstSpace;
+

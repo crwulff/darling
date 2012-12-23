@@ -1,0 +1,44 @@
+
+#include <Foundation/NSString.h>
+
+NSString * const NSPasteboardTypeString                            = @"NSPasteboardTypeString";
+NSString * const NSPasteboardTypePDF                               = @"NSPasteboardTypePDF";
+NSString * const NSPasteboardTypeTIFF                              = @"NSPasteboardTypeTIFF";
+NSString * const NSPasteboardTypePNG                               = @"NSPasteboardTypePNG";
+NSString * const NSPasteboardTypeRTF                               = @"NSPasteboardTypeRTF";
+NSString * const NSPasteboardTypeRTFD                              = @"NSPasteboardTypeRTFD";
+NSString * const NSPasteboardTypeHTML                              = @"NSPasteboardTypeHTML";
+NSString * const NSPasteboardTypeTabularText                       = @"NSPasteboardTypeTabularText";
+NSString * const NSPasteboardTypeFont                              = @"NSPasteboardTypeFont";
+NSString * const NSPasteboardTypeRuler                             = @"NSPasteboardTypeRuler";
+NSString * const NSPasteboardTypeColor                             = @"NSPasteboardTypeColor";
+NSString * const NSPasteboardTypeSound                             = @"NSPasteboardTypeSound";
+NSString * const NSPasteboardTypeMultipleTextSelection             = @"NSPasteboardTypeMultipleTextSelection";
+NSString * const NSPasteboardTypeTextFinderOptions                 = @"NSPasteboardTypeTextFinderOptions";
+NSString * NSGeneralPboard                                         = @"NSGeneralPboard";
+NSString * NSFontPboard                                            = @"NSFontPboard";
+NSString * NSRulerPboard                                           = @"NSRulerPboard";
+NSString * NSFindPboard                                            = @"NSFindPboard";
+NSString * NSDragPboard                                            = @"NSDragPboard";
+NSString * const NSPasteboardURLReadingFileURLsOnlyKey             = @"NSPasteboardURLReadingFileURLsOnlyKey";
+NSString * const NSPasteboardURLReadingContentsConformToTypesKey   = @"NSPasteboardURLReadingContentsConformToTypesKey";
+NSString * NSStringPboardType                                      = @"NSStringPboardType";	    
+NSString * NSFilenamesPboardType                                   = @"NSFilenamesPboardType";	    
+NSString * NSTIFFPboardType                                        = @"NSTIFFPboardType";	    
+NSString * NSRTFPboardType                                         = @"NSRTFPboardType";	    
+NSString * NSTabularTextPboardType                                 = @"NSTabularTextPboardType";    
+NSString * NSFontPboardType                                        = @"NSFontPboardType";	    
+NSString * NSRulerPboardType                                       = @"NSRulerPboardType";	    
+NSString * NSColorPboardType                                       = @"NSColorPboardType";	    
+NSString * NSRTFDPboardType                                        = @"NSRTFDPboardType";	    
+NSString * NSHTMLPboardType                                        = @"NSHTMLPboardType";	    
+NSString * NSURLPboardType                                         = @"NSURLPboardType";	    
+NSString * NSPDFPboardType                                         = @"NSPDFPboardType";	    
+NSString * NSMultipleTextSelectionPboardType                       = @"NSMultipleTextSelectionPboardType";
+NSString * NSPostScriptPboardType                                  = @"NSPostScriptPboardType";	    
+NSString * NSVCardPboardType                                       = @"NSVCardPboardType"; 
+NSString * NSInkTextPboardType                                     = @"NSInkTextPboardType"; 
+NSString * NSFilesPromisePboardType                                = @"NSFilesPromisePboardType"; 
+NSString * const NSPasteboardTypeFindPanelSearchOptions            = @"NSPasteboardTypeFindPanelSearchOptions";
+NSString * NSFileContentsPboardType                                = @"NSFileContentsPboardType";   
+NSString * NSPICTPboardType                                        = @"NSPICTPboardType";
