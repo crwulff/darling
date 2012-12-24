@@ -1,5 +1,6 @@
 
 #include <Foundation/NSString.h>
+#include <CoreImage/CIImage.h>
 
 typedef int CIFormat;
 
@@ -28,3 +29,6 @@ NSString * kCIImageAutoAdjustEnhance  = @"CIImageAutoAdjustEnhance";
 NSString * kCIImageAutoAdjustRedEye   = @"CIImageAutoAdjustRedEye";
 NSString * kCIImageAutoAdjustFeatures = @"CIImageAutoAdjustFeatures";
 
+@implementation CIImage
+
+@end

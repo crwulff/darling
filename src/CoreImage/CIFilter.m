@@ -1,5 +1,6 @@
 
 #include <Foundation/NSString.h>
+#include <CoreImage/CIFilter.h>
 
 NSString * kCIAttributeFilterName               = @"CIAttributeFilterName";
 NSString * kCIAttributeFilterDisplayName        = @"CIAttributeFilterDisplayName";
@@ -83,3 +84,8 @@ NSString * kCIInputMaskImageKey                 = @"CIInputMaskImageKey";
 NSString * kCIInputShadingImageKey              = @"CIInputShadingImageKey";
 NSString * kCIInputTargetImageKey               = @"CIInputTargetImageKey";
 NSString * kCIInputExtentKey                    = @"CIInputExtentKey";
+
+@implementation CIFilter
+
+@end
+
