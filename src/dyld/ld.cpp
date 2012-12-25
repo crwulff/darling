@@ -549,6 +549,23 @@ const char* NSLibraryNameForModule(NSModule m)
 	return NSNameOfModule(m);
 }
 
+void* TryLoadSymbol(void *handle, const char *symbolName)
+{
+	void *sym = ::dlsym(handle, symbolName);
+	if (sym)
+	{
+		if (strncmp(symbolName, "_OBJC_CLASS", 11) == 0)
+		{
+			for (ClassRegisterHookFunc* func : g_objcClassHooks)
+			{
+				func(sym);
+			}
+		}
+	}
+
+	return sym;
+}
+
 void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 {
 	TRACE2(handle, symbol);
@@ -574,9 +591,7 @@ void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 		strcpy(buf, "__darwin_");
 		strcat(buf, symbol);
 		
-		sym = ::dlsym(RTLD_DEFAULT, buf);
-		if (sym)
-			return sym;
+		RET_IF(TryLoadSymbol(RTLD_DEFAULT, buf));
 		
 		// Now try Darwin libraries
 		const std::list<Exports*>& le = g_loader->getExports();
@@ -601,19 +616,22 @@ void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 		// Now try without a prefix
 		const char* translated = translateSymbol(symbol);
 		LOG << "Trying " << translated << std::endl;
-		sym = ::dlsym(RTLD_DEFAULT, translated);
-		if (sym)
+		
+		for (auto& pair : g_ldLibraries)
 		{
-			if (strncmp(translated, "_OBJC_CLASS", 11) == 0)
+			if (pair.second->type == LoadedLibraryNative)
 			{
-				for (ClassRegisterHookFunc* func : g_objcClassHooks)
-				{
-					func(sym);
-				}
+				LOG << "Trying in " << pair.first << std::endl;
+				RET_IF(TryLoadSymbol(pair.second->nativeRef, translated));
+				if (strcmp(translated, symbol) != 0)
+					RET_IF(TryLoadSymbol(pair.second->nativeRef, symbol));
 			}
-
-			return sym;
 		}
+		
+		RET_IF(TryLoadSymbol(RTLD_DEFAULT, translated));
+		
+		if (strcmp(translated, symbol) != 0)
+			RET_IF(TryLoadSymbol(RTLD_DEFAULT, symbol));
 
 		// Now we fail
 		snprintf(g_ldError, sizeof(g_ldError)-1, "Cannot find symbol '%s'", symbol);
