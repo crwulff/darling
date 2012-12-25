@@ -28,26 +28,6 @@ static bool NameTranslator(char* name)
 		strcpy(name, "_OBJC_CLASS_NSCFString");
 		return true;
 	}
-	else if (strcmp(name, "kCFErrorDomainPOSIX") == 0)
-	{
-		strcpy(name, "NSPOSIXErrorDomain");
-		return true;
-	}
-	else if (strcmp(name, "kCFErrorDomainOSStatus") == 0)
-	{
-		strcpy(name, "NSOSStatusErrorDomain");
-		return true;
-	}
-	else if (strcmp(name, "kCFErrorDomainMach") == 0)
-	{
-		strcpy(name, "NSMACHErrorDomain");
-		return true;
-	}
-	else if (strcmp(name, "kCFErrorDomainCocoa") == 0)
-	{
-		strcpy(name, "NSCocoaErrorDomain");
-		return true;
-	}
 
 	return false;
 }

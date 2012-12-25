@@ -102,4 +102,3 @@ CF_EXPORT const CFStringRef kCFUserNotificationTextFieldValuesKey;
 /* WebServices? */
 CF_EXPORT const CFStringRef kCFWebServicesProviderDefaultDisplayNameKey;
 CF_EXPORT const CFStringRef kCFWebServicesTypeWebSearch;
-
