@@ -92,8 +92,11 @@ static int InitializeMacroInitializedMutex(__darwin_pthread_mutex_t* mutex)
 		type = PTHREAD_MUTEX_ERRORCHECK;
 		break;
 	case __darwin_pthread_mutex_t::SIGNATURE_MACRO_INITIALIZED:
-	default:
 		type = PTHREAD_MUTEX_NORMAL;
+		break;
+	default:
+		type = PTHREAD_MUTEX_RECURSIVE;
+		break;
 	}
 
 	pthread_mutexattr_settype(&mta, type);
