@@ -44,6 +44,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <execinfo.h>
 #include <set>
 #include "public.h"
+#include "GDBInterface.h"
 
 extern std::set<ClassRegisterHookFunc*> g_objcClassHooks;
 
@@ -377,10 +378,12 @@ void* attemptDlopen(const char* filename, int flag)
 				//if (!global)
 				//{
 					lib->exports = new Exports;
-					g_loader->load(*machO, name, lib->exports, nobind, lazy);
+					g_loader->load(*machO, name, lib->elf, lib->exports, nobind, lazy);
 				//}
 				//else
 				//	g_loader->load(*machO, name, 0, nobind, lazy);
+
+				GDBInterface::addELF(&lib->elf);
 				
 				if (!nobind)
 				{

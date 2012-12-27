@@ -81,6 +81,8 @@ set(dyld_SRCS
 	src/dyld/public.cpp
 	src/dyld/keymgr.cpp
 	src/dyld/binfmt_misc.cpp
+	src/dyld/ELFBlock.cpp
+	src/dyld/GDBInterface.cpp
 )
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")
