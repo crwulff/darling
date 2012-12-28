@@ -24,6 +24,7 @@ std::map<const void*,Class> g_classPointers;
 void RegisterNativeClass(void* cls)
 {
 	LOG << "Register Native Class @ " << cls << std::endl;
+
 	class_getSuperclass(reinterpret_cast<Class>(cls)); // HACK to force the class to be resolved
 	g_classPointers[cls] = reinterpret_cast<Class>(cls);
 }
@@ -42,7 +43,7 @@ __attribute__((constructor))
 	_dyld_register_func_for_add_image(ProcessImageLoad);
 	_dyld_register_func_for_remove_image(ProcessImageUnload);
 	_dyld_register_func_for_add_objc_class(RegisterNativeClass);
-	
+
 	//std::cout << "Done registering\n";
 }
 
@@ -51,15 +52,14 @@ void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 {
 	unsigned long size;
 
+	LOG << "ObjC ProcessImageLoad @" << mh << std::endl;
+
 #ifdef OBJC_ABI_2
-	const class_t** classes;
 	ProcessProtocolsNew(mh, slide);
 
-	classes = reinterpret_cast<const class_t**>(
-		getsectdata(mh, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, &size)
-	);
-	if (classes)
-		ProcessClassesNew(mh, slide, classes, size);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW);
+	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW);
 
 	ProcessCategoriesNew(mh, slide);
 #else
@@ -79,6 +79,8 @@ void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 
 	UpdateSelectors(mh, slide);
 	UpdateCFStrings(mh);
+
+	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
 
 void ProcessImageUnload(const struct mach_header* mh, intptr_t)

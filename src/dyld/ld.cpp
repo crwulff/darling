@@ -557,7 +557,10 @@ void* TryLoadSymbol(void *handle, const char *symbolName)
 	void *sym = ::dlsym(handle, symbolName);
 	if (sym)
 	{
-		if (strncmp(symbolName, "_OBJC_CLASS", 11) == 0)
+		if ((strncmp(symbolName, "_OBJC_CLASS", 11) == 0) ||
+		    (strncmp(symbolName, "_OBJC_METACLASS", 15) == 0) ||
+		    (strncmp(symbolName, "OBJC_CLASS", 10) == 0) ||
+		    (strncmp(symbolName, "OBJC_METACLASS", 14) == 0))
 		{
 			for (ClassRegisterHookFunc* func : g_objcClassHooks)
 			{
