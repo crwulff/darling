@@ -1,5 +1,6 @@
 
 #include "ELFBlock.h"
+#include "DWARFProducer.h"
 #include <elf.h>
 #include <string.h>
 #include <iostream>
@@ -23,6 +24,17 @@ typedef Elf32_Sym  Elf_Sym;
 #define EXTRA_SECTIONS 3
 #define EXTRA_SYMBOLS 1
 #define STRTAB_EXTRA (1 + 8 /* ".strtab" */ + 8 /* ".symtab" */)
+
+ELFBlock::ELFBlock(const std::string &filename) :
+	m_filename(filename), m_data(nullptr), m_size(0), m_dwarfProducer(new DWARFProducer(*this))
+{
+}
+
+ELFBlock::~ELFBlock(void)
+{
+	delete m_data;
+	delete m_dwarfProducer;
+}
 
 uint64_t ELFBlock::StringTable::add(const std::string &str)
 {
@@ -52,12 +64,21 @@ uint64_t ELFBlock::calcSize(StringTable &strtab, uint64_t &symtabOffset)
 
 	for (auto &symbol : m_symbols)
 	{
-		size += symbol.m_name.length() + 1;
+		size += symbol.second.m_name.length() + 1;
 	}
 
 	size += STRTAB_EXTRA;
 
 	strtab.m_size = size - strtab.m_offset;
+
+	for (auto &section : m_sections)
+	{
+		if (section.m_type != INVALID_TYPE)
+		{
+			section.m_offset = size;
+			size += section.getSize();
+		}
+	}
 
 	return size;
 }
@@ -68,6 +89,8 @@ void ELFBlock::finalize(void)
 	{
 		return;
 	}
+
+	m_dwarfProducer->finalize();
 
 	//std::cout << "Finalizing \"" << m_filename << "\"" << std::endl;
 
@@ -115,15 +138,16 @@ void ELFBlock::finalize(void)
 		Elf_Phdr *phdr = (Elf_Phdr*)&m_data[offset];
 		offset += sizeof(Elf_Phdr);
 
+		if (!section.m_loadable) { continue; }
+
 		phdr->p_type   = PT_LOAD;
 		phdr->p_offset = 0;
-		phdr->p_vaddr  = (uintptr_t)section.m_start;
+		phdr->p_vaddr  = (uintptr_t)section.getStart();
 		phdr->p_paddr  = 0;
 		phdr->p_filesz = 0;
-		phdr->p_memsz  = section.m_size;
+		phdr->p_memsz  = section.getSize();
 		phdr->p_flags  = PF_R | PF_W | PF_X;
 		phdr->p_align  = 0;
-
 	}
 
 	// Fill in section headers (first one is reserved, second is strtab, third is symtab)
@@ -163,15 +187,28 @@ void ELFBlock::finalize(void)
 		offset += sizeof(Elf_Shdr);
 
 		shdr->sh_name      = strtab.add(section.m_name);
-		shdr->sh_type      = SHT_NOBITS;
-		shdr->sh_flags     = SHF_ALLOC;
-		shdr->sh_addr      = (uintptr_t)section.m_start;
-		shdr->sh_offset    = 0;
-		shdr->sh_size      = section.m_size;
+		shdr->sh_type      = (section.m_type == INVALID_TYPE) ? SHT_NOBITS : section.m_type;
+		shdr->sh_flags     = (section.m_loadable) ? SHF_ALLOC : 0;
+		shdr->sh_addr      = (uintptr_t)((section.m_type == INVALID_TYPE) ? section.getStart() : &m_data[section.m_offset]);
+		shdr->sh_offset    = section.m_offset;
+		shdr->sh_size      = section.getSize();
 		shdr->sh_link      = 0;
 		shdr->sh_info      = 0;
 		shdr->sh_addralign = 0;
 		shdr->sh_entsize   = 0;
+
+		if (shdr->sh_type != SHT_NOBITS)
+		{
+			// Copy data into the section
+			uint64_t secOffset = section.m_offset;
+			for (auto &chunk : section.m_data)
+			{
+				memcpy(&m_data[secOffset], chunk.m_start, chunk.m_size);
+				secOffset += chunk.m_size;
+			}
+		}
+
+		//std::cerr << "ELF Section: " << section.m_name << ", addr " << std::hex << shdr->sh_addr << ", size " << std::hex << shdr->sh_size << std::endl;
 	}
 
 	// Fill in symbols (first is the filename)
@@ -190,11 +227,11 @@ void ELFBlock::finalize(void)
 		sym = (Elf_Sym*)&m_data[offset];
 		offset += sizeof(Elf_Sym);
 
-		sym->st_name  = strtab.add(symbol.m_name);
+		sym->st_name  = strtab.add(symbol.second.m_name);
 		sym->st_info  = (STB_GLOBAL << 4) | STT_FUNC; // TODO: differentiate between functions/vars/etc.
 		sym->st_other = 0;
 		sym->st_shndx = SHN_ABS;
-		sym->st_value = (uintptr_t)symbol.m_addr;
+		sym->st_value = (uintptr_t)symbol.second.m_addr;
 		sym->st_size  = 0;
 	}
 }
