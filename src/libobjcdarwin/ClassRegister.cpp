@@ -15,11 +15,16 @@
 #endif
 #include "common/selector.h"
 #include "common/cfstring.h"
+#include "common/method.h"
 #include <map>
 
 // Superclass references in Mach-O don't use classref
 // Neither do category class references
 std::map<const void*,Class> g_classPointers;
+
+// Deferred load calls
+std::map<Class, IMP> g_realLoads;
+std::list<id>        g_pendingLoads;
 
 void RegisterNativeClass(void* cls)
 {
@@ -47,6 +52,24 @@ __attribute__((constructor))
 	//std::cout << "Done registering\n";
 }
 
+void ProcessPendingLoads(void)
+{
+	SEL loadSel = sel_getUid("load");
+	for (auto load : g_pendingLoads)
+	{
+		// load method was registered on the metaclass
+		auto realLoad = g_realLoads.find(object_getClass(load));
+		if (realLoad != g_realLoads.end())
+		{
+			realLoad->second(load, loadSel);
+		}
+		else
+		{
+			std::cerr << "Real load method not found for class @" << load << std::endl;
+		}
+	}
+	g_pendingLoads.clear();
+}
 
 void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 {
@@ -79,6 +102,8 @@ void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 
 	UpdateSelectors(mh, slide);
 	UpdateCFStrings(mh);
+
+	ProcessPendingLoads();
 
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
