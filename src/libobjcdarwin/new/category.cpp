@@ -7,7 +7,7 @@
 
 extern std::map<const void*,Class> g_classPointers;
 
-void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide)
+void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide, uint32_t image_index)
 {
 	category_t** cats;
 	unsigned long size;
@@ -35,23 +35,23 @@ void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide)
 		else
 		{
 			// These should all already have been processed. Native classes should all be registered already too.
-			std::cout << "Error: unregistered class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
+			std::cerr << "Error: unregistered class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
 			//c = reinterpret_cast<Class>(cat->cls);
 			continue;
 		}
 
 		if (nullptr == c)
 		{
-			std::cout << "Error: null Class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
+			std::cerr << "Error: null Class pointer in ProcessCategoriesNew @" << cat->cls << std::endl;
 			continue;
 		}
 			
-		LOG << "Processing category " << cat->name << " on top of class @" << c << std::endl;
+		std::cerr << "Processing category " << cat->name << " on top of class @" << c << " " << class_getName(c) << std::endl;
 
 		if (cat->methods)
-			ConvertMethodListGen(c, cat->methods);
+			ConvertMethodListGen(c, cat->methods, image_index);
 		if (cat->staticMethods)
-			ConvertMethodListGen(object_getClass(id(c)), cat->staticMethods);
+			ConvertMethodListGen(object_getClass(id(c)), cat->staticMethods, image_index);
 		if (cat->protocols)
 			AddClassProtocols(c, cat->protocols, slide);
     	if (cat->properties)

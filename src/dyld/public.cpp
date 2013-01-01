@@ -57,6 +57,11 @@ const char* _dyld_get_image_name(uint32_t image_index)
 	return g_file_map.images().at(image_index)->filename.c_str();
 }
 
+void _dyld_register_method_symbol(uint32_t image_index, const char* name, void* addr)
+{
+	g_file_map.images().at(image_index)->elf->addSymbol(name, addr);
+}
+
 char* getsectdata(const struct mach_header* header, const char* segname, const char* sectname, unsigned long* size)
 {
 	FileMap::ImageMap* imageMap = 0;

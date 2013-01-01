@@ -9,8 +9,8 @@
 #include <objc/runtime.h>
 #include "../util/log.h"
 
-void ProcessImageLoad(const struct mach_header* mh, intptr_t slide);
-void ProcessImageUnload(const struct mach_header* mh, intptr_t);
+void ProcessImageLoad(uint32_t image_index);
+void ProcessImageUnload(uint32_t image_index);
 
 #endif
 

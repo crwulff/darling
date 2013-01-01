@@ -41,8 +41,7 @@ __attribute__((constructor))
 {
 	for (uint32_t i = 0; i < _dyld_image_count(); i++)
 	{
-		const struct mach_header* hdr = _dyld_get_image_header(i);
-		ProcessImageLoad(hdr, 0);
+		ProcessImageLoad(i);
 	}
 
 	_dyld_register_func_for_add_image(ProcessImageLoad);
@@ -71,8 +70,10 @@ void ProcessPendingLoads(void)
 	g_pendingLoads.clear();
 }
 
-void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
+void ProcessImageLoad(uint32_t image_index)
 {
+	const struct mach_header *mh = _dyld_get_image_header(image_index);
+	intptr_t slide = _dyld_get_image_vmaddr_slide(image_index);
 	unsigned long size;
 
 	LOG << "ObjC ProcessImageLoad @" << mh << std::endl;
@@ -80,11 +81,11 @@ void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 #ifdef OBJC_ABI_2
 	ProcessProtocolsNew(mh, slide);
 
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW);
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW);
-	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, image_index);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW, image_index);
+	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW, image_index);
 
-	ProcessCategoriesNew(mh, slide);
+	ProcessCategoriesNew(mh, slide, image_index);
 #else
 	module_info* modinfo;
 	ProcessProtocolsOld(mh, slide);
@@ -108,7 +109,7 @@ void ProcessImageLoad(const struct mach_header* mh, intptr_t slide)
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
 
-void ProcessImageUnload(const struct mach_header* mh, intptr_t)
+void ProcessImageUnload(uint32_t image_index)
 {
 	// TODO
 }

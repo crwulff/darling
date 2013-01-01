@@ -27,6 +27,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "MachO.h"
 #include <dlfcn.h>
 #include "../util/mutex.h"
+#include "ELFBlock.h"
 
 class FileMap
 {
@@ -35,7 +36,7 @@ public:
 	
 	struct ImageMap;
 
-	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy);
+	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock &elf, uint32_t &image_index);
 
 	void addWatchDog(uintptr_t addr);
 
@@ -52,6 +53,7 @@ public:
 
 		std::list<MachO::Bind> lazy_binds;
 		mutable Darling::Mutex mutex_lazy_binds;
+		ELFBlock *elf;
 	};
 	
 	const ImageMap* imageMapForAddr(const void* p) const;

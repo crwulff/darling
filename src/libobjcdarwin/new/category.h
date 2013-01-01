@@ -5,6 +5,6 @@
 #include <stdint.h>
 #include "../../dyld/public.h"
 
-void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide);
+void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide, uint32_t image_index);
 
 #endif

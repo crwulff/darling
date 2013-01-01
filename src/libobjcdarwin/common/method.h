@@ -4,6 +4,7 @@
 #include <map>
 #include <list>
 #include <string.h>
+#include "../dyld/public.h"
 
 extern std::map<Class, IMP> g_realLoads;
 extern std::list<id>        g_pendingLoads;
@@ -15,7 +16,7 @@ static id loadStub(id cls, SEL)
 	return 0;
 }
 
-template<typename ListType> void ConvertMethodListGen(Class c, const ListType* list)
+template<typename ListType> void ConvertMethodListGen(Class c, const ListType* list, uint32_t image_index)
 {
 	LOG << list->count << " methods within\n";
 
@@ -26,6 +27,7 @@ template<typename ListType> void ConvertMethodListGen(Class c, const ListType* l
 		auto* m = &list->method_list[i];
 
 		LOG << "Method: selName: " << m->selName << "; types: " << m->types << "; impl: " << m->impl << std::endl;
+		_dyld_register_method_symbol(image_index, m->selName, m->impl);
 
 		SEL sel = sel_registerTypedName_np(m->selName, m->types);
 		if (strcmp(m->selName, "load") == 0)

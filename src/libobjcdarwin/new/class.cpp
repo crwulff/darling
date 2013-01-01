@@ -12,7 +12,7 @@
 
 extern std::map<const void*,Class> g_classPointers;
 
-Class RegisterClass(const class_t* cls, intptr_t slide)
+Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 {
 	if (nullptr == cls)
 	{
@@ -26,7 +26,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide)
 		return itClass->second;
 	}
 
-	Class super = RegisterClass(cls->superclass, slide);
+	Class super = RegisterClass(cls->superclass, slide, image_index);
 
 	LOG << "...superclass is @" << super << std::endl;
 	if (nullptr != super)
@@ -75,12 +75,12 @@ Class RegisterClass(const class_t* cls, intptr_t slide)
 	const class_ro_t* ro = cls->data();
 
 	if (ro->baseMethods)
-		ConvertMethodListGen(conv, ro->baseMethods);
+		ConvertMethodListGen(conv, ro->baseMethods, image_index);
 	if (g_classPointers.find(cls->isa) == g_classPointers.end())
 	{
 		const class_ro_t* roMeta = cls->isa->data();
 		if (roMeta->baseMethods)
-			ConvertMethodListGen(meta, roMeta->baseMethods);
+			ConvertMethodListGen(meta, roMeta->baseMethods, image_index);
 	}
 	if (ro->ivars)
 		ConvertIvarList(conv, ro->ivars);
@@ -104,7 +104,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide)
 	return conv;
 }
 
-void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section)
+void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section, uint32_t image_index)
 {
 	class_t **classes, **classes_end;
 	unsigned long size;
@@ -119,7 +119,7 @@ void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char*
 
 		while (classes < classes_end)
 		{
-			Class c = RegisterClass(*classes, slide);
+			Class c = RegisterClass(*classes, slide, image_index);
 			LOG << "Fixup @" << classes << " " << *classes << " -> " << c <<std::endl;
 			*classes = (class_t*)c;
 
