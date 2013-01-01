@@ -41,6 +41,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlfcn.h>
 #include <libgen.h>
 #include "GDBInterface.h"
+#include "dyld.h"
 
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 0x1000
@@ -52,8 +53,6 @@ static std::vector<std::string> g_bound_names;
 char g_darwin_loader_path[PATH_MAX] = "";
 
 extern char g_darwin_executable_path[PATH_MAX];
-extern int g_argc;
-extern char** g_argv;
 extern bool g_trampoline;
 extern bool g_noWeak;
 extern std::set<LoaderHookFunc*> g_machoLoaderHooks;
@@ -67,6 +66,10 @@ static bool lookupDyldFunction(const char* name, void** addr)
 {
 	LOG << "lookupDyldFunction: " << name <<std::endl;
 	*addr = dlsym(dlopen(0, 0), name);
+
+	if (!*addr)
+		*addr = (void*) (void (*)()) []() { LOG << "Fake dyld function called\n"; };
+
 	return (*addr) != 0;
 }
 
@@ -149,7 +152,7 @@ void MachOLoader::doMProtect()
 	m_mprotects.clear();
 }
 
-void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, ELFBlock &elf)
+void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, ELFBlock* elf)
 {
 	*base = 0;
 	--*base;
@@ -284,7 +287,8 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, E
 
 		m_last_addr = std::max(m_last_addr, (intptr)vmaddr + vmsize);
 
-		elf.addSection(name, (void*)vmaddr, vmsize, 0);
+		if (elf)
+			elf->addSection(name, (void*)vmaddr, vmsize, 0);
 	}
 }
 
@@ -416,8 +420,18 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 					else
 					{
 						if (bind->is_classic)
+						//if (false)
 						{
-							*ptr = last_weak_sym = (uintptr_t)bind->value;
+							uintptr_t addr = bind->value;
+							if (!addr)
+							{
+								LOG << "Trying to resolve classic,weak,null\n";
+								addr = (uintptr_t) __darwin_dlsym(__DARLING_RTLD_STRONG, name.c_str());
+							}
+							LOG << "Bind (classic, weak) @" << ptr << " -> " << std::hex << uintptr_t(addr) << std::dec << std::endl;
+							
+							writeBind(bind->type, ptr, uintptr_t(addr));
+							last_weak_sym = uintptr_t(addr);
 						}
 						else
 						{
@@ -426,7 +440,10 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 							{
 								LOG << "Weak reference overridden for " << name << std::endl;
 								LOG << (void*)*ptr << " -> " << (void*)expAddr << " @" << ptr << std::endl;
-								*ptr = last_weak_sym = (uintptr_t)expAddr;
+
+								writeBind(bind->type, ptr, uintptr_t(expAddr));
+
+								*ptr = last_weak_sym = uintptr_t(expAddr);
 							}
 							else
 							{
@@ -500,26 +517,8 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 
 			if (g_trampoline)
 				sym = (uintptr_t) m_pTrampolineMgr->generate((void*)sym, name.c_str());
-			if (bind->type == BIND_TYPE_POINTER)
-			{
-				*ptr = sym;
-			}
-#ifdef __i386__
-			else if (bind->type == BIND_TYPE_STUB)
-			{
-				struct jmp_instr
-				{
-					uint8_t relJmp;
-					uint32_t addr;
-				} __attribute__((packed));
-				static_assert(sizeof(jmp_instr) == 5, "Incorrect jmp instruction size");
 
-				jmp_instr* instr = reinterpret_cast<jmp_instr*>(ptr);
-
-				instr->relJmp = 0xE9; // x86 jmp rel32
-				instr->addr = sym - uint32_t(ptr) + sizeof(jmp_instr);
-			}
-#endif
+			writeBind(bind->type, ptr, sym);
 		}
 		else
 		{
@@ -535,9 +534,30 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 	return reinterpret_cast<void*>(sym);
 }
 
+void MachOLoader::writeBind(int type, uintptr_t* ptr, uintptr_t newAddr)
+{
+	if (type == BIND_TYPE_POINTER)
+		*ptr = newAddr;
 
+#ifdef __i386__
+	else if (type == BIND_TYPE_STUB)
+	{
+		struct jmp_instr
+		{
+			uint8_t relJmp;
+			uint32_t addr;
+		} __attribute__((packed));
+		static_assert(sizeof(jmp_instr) == 5, "Incorrect jmp instruction size");
 
-void MachOLoader::loadExports(const MachO& mach, intptr base, Exports* exports, ELFBlock &elf)
+		jmp_instr* instr = reinterpret_cast<jmp_instr*>(ptr);
+
+		instr->relJmp = 0xE9; // x86 jmp rel32
+		instr->addr = newAddr - uint32_t(ptr) - sizeof(jmp_instr);
+	}
+#endif
+}
+
+void MachOLoader::loadExports(const MachO& mach, intptr base, Exports* exports, ELFBlock* elf)
 {
 	exports->rehash(exports->size() + mach.exports().size());
 	
@@ -552,7 +572,8 @@ void MachOLoader::loadExports(const MachO& mach, intptr base, Exports* exports, 
 			LOG << "Warning: duplicate exported symbol name: " << exp->name << std::endl;
 		}
 
-		elf.addSymbol(exp->name, (void*)exp->addr);
+		if (elf)
+			elf->addSymbol(exp->name, (void*)exp->addr);
 	}
 }
 
@@ -575,7 +596,7 @@ void MachOLoader::popCurrentLoader()
 	m_loaderPath.pop();
 }
 
-void MachOLoader::load(const MachO& mach, std::string sourcePath, ELFBlock &elf, Exports* exports, bool bindLater, bool bindLazy)
+void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* exports, bool bindLater, bool bindLazy, ELFBlock* elf)
 {
 	intptr slide = 0;
 	intptr base = 0;
@@ -602,8 +623,8 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, ELFBlock &elf,
 
 	loadExports(mach, base, exports, elf);
 	
-	
-	img = g_file_map.add(mach, slide, base, bindLazy);
+	uint32_t image_index = 0;
+	img = g_file_map.add(mach, slide, base, bindLazy, elf, image_index);
 	
 	if (!bindLater)
 		doBind(mach.binds(), slide, !bindLazy);
@@ -611,12 +632,12 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, ELFBlock &elf,
 	if (!bindLater)
 	{
 		for (LoaderHookFunc* func : g_machoLoaderHooks)
-			func(img->header, slide);
+			func(image_index);
 	}
 	else
 	{
 		LOG << mach.binds().size() << " binds pending\n";
-		m_pendingBinds.push_back(PendingBind{ &mach, img->header, slide, bindLazy });
+		m_pendingBinds.push_back(PendingBind{ &mach, img->header, slide, bindLazy, image_index });
 	}
 	
 	popCurrentLoader();
@@ -631,7 +652,7 @@ void MachOLoader::doPendingBinds()
 		if (b.macho->get_eh_frame().first)
 			__register_frame(reinterpret_cast<void*>(b.macho->get_eh_frame().first + b.slide));
 		for (LoaderHookFunc* func : g_machoLoaderHooks)
-			func(b.header, b.slide);
+			func(b.image_index);
 	}
 	m_pendingBinds.clear();
 }
@@ -682,8 +703,12 @@ void MachOLoader::run(MachO& mach, int argc, char** argv, char** envp, bool bind
 	envCopy.push_back(0);
 
 	m_mainExports = new Exports;
+
+#ifdef DEBUG
 	m_mainELF = new ELFBlock(mach.filename());
-	load(mach, g_darwin_executable_path, *m_mainELF, m_mainExports, true, bindLazy);
+#endif
+
+	load(mach, g_darwin_executable_path, m_mainExports, true, bindLazy, m_mainELF);
 	setupDyldData(mach);
 
 	g_file_map.addWatchDog(m_last_addr + 1);

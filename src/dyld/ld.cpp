@@ -45,6 +45,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <set>
 #include "public.h"
 #include "GDBInterface.h"
+#include "dyld.h"
 #include <glob.h>
 
 extern std::set<ClassRegisterHookFunc*> g_objcClassHooks;
@@ -76,8 +77,6 @@ extern MachO* g_mainBinary;
 extern MachOLoader* g_loader;
 extern char g_darwin_executable_path[PATH_MAX];
 extern char g_sysroot[PATH_MAX];
-extern int g_argc;
-extern char** g_argv;
 extern FileMap g_file_map;
 
 #define RET_IF(x) { if (void* p = x) return p; }
@@ -88,15 +87,21 @@ static void findSearchpaths(std::string ldconfig_file){
 	std::ifstream read;
 	read.open(ldconfig_file);
 	if(!read.is_open())
-		std::cerr << "can't read ldconfig config file - " << ldconfig_file  << std::endl;
+		LOG << "can't read ldconfig config file - " << ldconfig_file  << std::endl;
+
 	std::string line;
-	while(std::getline(read,line)){
+	while(std::getline(read,line))
+	{
 		line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));	
-		if(line.find("include") == 0){
+
+		if(line.find("include") == 0)
+		{
 			line = line.substr(7);
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
 			findSearchpathsWildcard(line);
-		}else{
+		}
+		else
+		{
 			g_searchPath.push_back(line);	
 		}
 	}
@@ -410,15 +415,15 @@ void* attemptDlopen(const char* filename, int flag)
 				// Insert an entry before doing the full load to prevent recursive loading
 				g_ldLibraries[name] = lib;
 
-				//if (!global)
-				//{
-					lib->exports = new Exports;
-					g_loader->load(*machO, name, lib->elf, lib->exports, nobind, lazy);
-				//}
-				//else
-				//	g_loader->load(*machO, name, 0, nobind, lazy);
+				lib->exports = new Exports;
+
+#ifdef DEBUG
+				g_loader->load(*machO, name, lib->exports, nobind, lazy, &lib->elf);
 
 				GDBInterface::addELF(&lib->elf);
+#else
+				g_loader->load(*machO, name, lib->exports, nobind, lazy);
+#endif
 				
 				if (!nobind)
 				{

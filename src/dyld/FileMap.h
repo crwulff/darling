@@ -36,7 +36,7 @@ public:
 	
 	struct ImageMap;
 
-	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock &elf, uint32_t &image_index);
+	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index);
 
 	void addWatchDog(uintptr_t addr);
 

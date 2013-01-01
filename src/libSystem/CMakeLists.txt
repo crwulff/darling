@@ -12,8 +12,8 @@ if (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 endif (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 
 configure_file(config.h.in config.h)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fblocks -std=c++0x")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fblocks -std=c++11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks -D_GNU_SOURCE")
 
 #find_path(LIBCXX_INCLUDE_DIR c++/v1/vector)
 #if (DEFINED LIBCXX_INCLUDE_DIR)
@@ -33,8 +33,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/xnu)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/xnu/mach)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/xnu/bsd)
 
-ADD_CUSTOM_COMMAND(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/directmap.nasm"
-	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../../genfuncmap" ARGS "${CMAKE_CURRENT_SOURCE_DIR}/libc/directmap.lst" "${CMAKE_CURRENT_BINARY_DIR}/directmap.nasm")
+#ADD_CUSTOM_COMMAND(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/directmap.nasm"
+#	COMMAND "${CMAKE_CURRENT_BINARY_DIR}/../../genfuncmap" ARGS "${CMAKE_CURRENT_SOURCE_DIR}/libc/directmap.lst" "${CMAKE_CURRENT_BINARY_DIR}/directmap.nasm")
 
 
 set(libc_SRCS
@@ -47,7 +47,6 @@ set(libc_SRCS
 	libc/errno.cpp
 	libc/OSAtomic.cpp
 	libc/strmode.c
-	${CMAKE_CURRENT_BINARY_DIR}/directmap.nasm
 	libc/sysctl.cpp
 	libc/dir.cpp
 	libc/string.cpp
@@ -70,6 +69,7 @@ set(libc_SRCS
 	libc/spawn.cpp
 	libc/xlocale.cpp
 	libc/malloc_zone.cpp
+	libc/namemap.cpp
 	common/auto.cpp
 	common/path.cpp
 )
@@ -97,7 +97,8 @@ set(machkern_SRCS
 	kernel-mach/compat.cpp
 )
 
-add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS} ${machkern_SRCS})
+add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS}
+	${machkern_SRCS} keymgr/keymgr.c)
 # -luuid to make uuid_ functions available for Darwin apps
 target_link_libraries(System.B.dylib -ldl -lpthread -luuid -l:../../libmach-o.so -lrt -lssl -lbsd -l:libobjc.so.4 -lcrypto)
 add_dependencies(System.B.dylib mach-o)

@@ -36,7 +36,7 @@ FileMap::~FileMap()
 	}
 }
 
-const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock &elf, uint32_t &image_index)
+const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index)
 {
 	ImageMap* symbol_map = new ImageMap;
 
@@ -52,7 +52,7 @@ const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintpt
 	symbol_map->eh_frame = mach.get_eh_frame();
 	symbol_map->unwind_info = mach.get_unwind_info();
 	symbol_map->sections = mach.sections();
-	symbol_map->elf = &elf;
+	symbol_map->elf = elf;
 	
 	if (!bindLazy)
 	{

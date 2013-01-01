@@ -35,6 +35,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <mcheck.h>
 #include <unistd.h>
 #include <libgen.h>
+#include "dyld.h"
 
 char g_darwin_executable_path[4096] = "";
 char g_dyld_path[4096] = "";
