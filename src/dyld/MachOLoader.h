@@ -64,6 +64,9 @@ public:
 	
 	// Resolves all external symbols required by this module
 	void* doBind(const std::vector<MachO::Bind*>& binds, intptr slide, bool resolveLazy = false);
+
+	// Binds external relocations
+	void doRelocations(const std::vector<MachO::Relocation*>& rels, intptr base, intptr slide);
 	
 	// Calls mprotect() to switch segment protections to the "initial" value.
 	// We initially set the maximum value.
@@ -98,6 +101,8 @@ private:
 	void boot(uint64_t entry, int argc, char** argv, char** envp, char** apple);
 
 	void writeBind(int type, uintptr_t* ptr, uintptr_t newAddr);
+	// The name should include the extra underscore at the beginning
+	uintptr_t getSymbolAddress(const std::string& name, const MachO::Bind* bind = nullptr, intptr slide = 0);
 
 	// checks sysctl mmap_min_addr
 	static void checkMmapMinAddr(intptr addr);
@@ -135,6 +140,9 @@ private:
 	
 	std::vector<std::string> m_rpathContext;
 	std::stack<std::string> m_loaderPath;
+
+	std::string m_lastResolvedSymbol;
+	uintptr_t m_lastResolvedAddress;
 };
 
 #endif

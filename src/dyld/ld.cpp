@@ -84,8 +84,8 @@ extern FileMap g_file_map;
 static void findSearchpathsWildcard(std::string ldconfig_file_pattern);
 
 static void findSearchpaths(std::string ldconfig_file){
-	std::ifstream read;
-	read.open(ldconfig_file);
+	std::ifstream read(ldconfig_file);
+
 	if(!read.is_open())
 		LOG << "can't read ldconfig config file - " << ldconfig_file  << std::endl;
 
@@ -98,7 +98,11 @@ static void findSearchpaths(std::string ldconfig_file){
 		{
 			line = line.substr(7);
 			line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-			findSearchpathsWildcard(line);
+
+			if (line.find('*') == std::string::npos)
+				findSearchpaths(line);
+			else
+				findSearchpathsWildcard(line);
 		}
 		else
 		{
@@ -111,11 +115,12 @@ static void findSearchpathsWildcard(std::string ldconfig_file_pattern)
 {
 	// Use glob to break down wildcards (ex. "/etc/ld.so.conf.d/*.conf")
 	glob_t globbuf;
-	glob(ldconfig_file_pattern.c_str(), GLOB_NOSORT, NULL, &globbuf);
-	for (size_t i=0; i<globbuf.gl_pathc; i++)
-	{
+	
+	glob(ldconfig_file_pattern.c_str(), GLOB_NOSORT, nullptr, &globbuf);
+
+	for (size_t i = 0; i < globbuf.gl_pathc; i++)
 		findSearchpaths(globbuf.gl_pathv[i]);
-	}
+
 	globfree(&globbuf);
 }
 

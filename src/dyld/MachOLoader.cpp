@@ -1,7 +1,7 @@
 /*
 This file is part of Darling.
 
-Copyright (C) 2012 Lubos Dolezel
+Copyright (C) 2012-2013 Lubos Dolezel
 Copyright (C) 2011 Shinichiro Hamaji
 
 Darling is free software: you can redistribute it and/or modify
@@ -358,6 +358,36 @@ void MachOLoader::doRebase(const MachO& mach, intptr slide)
 	}
 }
 
+void MachOLoader::doRelocations(const std::vector<MachO::Relocation*>& rels, intptr base, intptr slide)
+{
+	m_lastResolvedSymbol.clear();
+	m_lastResolvedAddress = 0;
+
+	for (const MachO::Relocation* rel : rels)
+	{
+		uintptr_t* ptr = (uintptr_t*) (uintptr_t(rel->addr) /*+ base*/ + slide);
+		uintptr_t symbol;
+		uintptr_t value = *ptr;
+
+		symbol = getSymbolAddress(rel->name);
+
+		value += symbol;
+
+#ifdef __i386__
+		if (rel->pcrel)
+		{
+			LOG << "reloc(pcrel): @" << ptr << " " << std::hex << *ptr << " -> " << (value - uintptr_t(ptr) - 4) << std::dec << std::endl;
+			*ptr = value - uintptr_t(ptr) - 4;
+		}
+		else
+#endif
+		{
+			LOG << "reloc: @" << ptr << " " << std::hex << *ptr << " -> " << value << std::dec << std::endl;
+			*ptr = value;
+		}
+	}
+}
+
 void MachOLoader::loadInitFuncs(const MachO& mach, intptr slide)
 {
 	for (intptr addr : mach.init_funcs())
@@ -378,6 +408,9 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 
 	g_bound_names.resize(binds.size());
 
+	m_lastResolvedSymbol.clear();
+	m_lastResolvedAddress = 0;
+
 	for (const MachO::Bind* bind : binds)
 	{
 		if (bind->is_lazy)
@@ -397,7 +430,8 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 			uintptr_t* ptr = (uintptr_t*)(bind->vmaddr + slide);
 
 			sym = 0;
-			
+		
+			// FIXME: This unholy mess needs to be fixed, weak bind handling shouldn't be implemented separately like this
 			if (bind->is_weak)
 			{
 				if (g_noWeak)
@@ -460,53 +494,9 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 			}
 			else // not weak
 			{
-				// TODO: remove, replace with aliases
-#ifndef __x86_64__
-				static const char* SUF_UNIX03 = "$UNIX2003";
-				static const size_t SUF_UNIX03_LEN = strlen(SUF_UNIX03);
-				if (name.size() > SUF_UNIX03_LEN &&
-					!strcmp(name.c_str() + name.size() - SUF_UNIX03_LEN,
-							SUF_UNIX03)) {
-				name = name.substr(0, name.size() - SUF_UNIX03_LEN);
-				}
-#endif
+				sym = getSymbolAddress(bind->name, bind, slide);
 
-				if (bind->name[0] != '_')
-				{
-					// assume local (e.g. dyld_stub_binder)
-					name = bind->name; // for correct error reporting
-					sym = reinterpret_cast<uintptr_t>(dlsym(dlopen(0, 0), bind->name.c_str()));
-				}
-				else
-					sym = reinterpret_cast<uintptr_t>(__darwin_dlsym(DARWIN_RTLD_DEFAULT, name.c_str()));
-				
-				if (!sym)
-				{
-					const char* ign_sym = getenv("DYLD_IGN_MISSING_SYMS");
-					//if (!bind->addend)
-					{
-#ifdef __x86_64__
-						if (ign_sym && atoi(ign_sym))
-						{
-							std::cerr << "!!! Undefined symbol: " << name << std::endl;
-							
-							char* dname = new char[name.size()+1];
-							strcpy(dname, name.c_str());
-							
-							sym = reinterpret_cast<uintptr_t>(m_pUndefMgr->generateNew(dname));
-						}
-						else
-#endif
-						{
-							std::stringstream ss;
-							ss << "Undefined symbol: " << name;
-							throw std::runtime_error(ss.str());
-						}
-					}
-					//else
-					//	sym = reinterpret_cast<char*>(bind->addend + slide);
-				}
-				else
+				if (!bind->is_classic)
 					sym += bind->addend;
 			}
 
@@ -530,6 +520,65 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 
 	// This return value is used by dyld_stub_binder
 	return reinterpret_cast<void*>(sym);
+}
+
+uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::Bind* bind, intptr slide)
+{
+	std::string name;
+	uintptr_t sym;
+
+	if (oname == m_lastResolvedSymbol)
+		return m_lastResolvedAddress;
+
+	if (oname[0] != '_')
+	{
+		// assume local (e.g. dyld_stub_binder)
+		name = oname;
+		sym = reinterpret_cast<uintptr_t>(dlsym(dlopen(0, 0), name.c_str()));
+	}
+	else
+	{
+		name = oname.substr(1);
+
+		// TODO: remove, replace with aliases
+#ifndef __x86_64__
+		static const char* SUF_UNIX03 = "$UNIX2003";
+		static const size_t SUF_UNIX03_LEN = strlen(SUF_UNIX03);
+		if (name.size() > SUF_UNIX03_LEN && !strcmp(name.c_str() + name.size() - SUF_UNIX03_LEN, SUF_UNIX03))
+			name = name.substr(0, name.size() - SUF_UNIX03_LEN);
+#endif
+		sym = reinterpret_cast<uintptr_t>(__darwin_dlsym(DARWIN_RTLD_DEFAULT, name.c_str()));
+	}
+	
+	if (!sym)
+	{
+		static const char* ign_sym = getenv("DYLD_IGN_MISSING_SYMS");
+		if (!bind || !bind->is_classic || !bind->value)
+		{
+			if (ign_sym && atoi(ign_sym))
+			{
+				std::cerr << "!!! Undefined symbol: " << name << std::endl;
+							
+				char* dname = new char[name.size()+1];
+				strcpy(dname, name.c_str());
+				
+				sym = reinterpret_cast<uintptr_t>(m_pUndefMgr->generateNew(dname));
+			}
+			else
+			{
+				std::stringstream ss;
+				ss << "Undefined symbol: " << name;
+				throw std::runtime_error(ss.str());
+			}
+		}
+		else
+			sym = uintptr_t(bind->value) + slide;
+	}
+
+	m_lastResolvedSymbol = oname;
+	m_lastResolvedAddress = sym;
+
+	return sym;
 }
 
 void MachOLoader::writeBind(int type, uintptr_t* ptr, uintptr_t newAddr)
@@ -626,6 +675,7 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	
 	if (!bindLater)
 		doBind(mach.binds(), slide, !bindLazy);
+	doRelocations(mach.relocations(), base, slide);
 
 	if (!bindLater)
 	{
