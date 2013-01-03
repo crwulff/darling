@@ -83,6 +83,7 @@ set(dyld_SRCS
 	src/dyld/ELFBlock.cpp
 	src/dyld/GDBInterface.cpp
 	src/dyld/DWARFProducer.cpp
+	src/dyld/eh_fixup.cpp
 )
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")

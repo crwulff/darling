@@ -42,13 +42,11 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <libgen.h>
 #include "GDBInterface.h"
 #include "dyld.h"
+#include "eh_fixup.h"
 
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 0x1000
 #endif
-
-// sizeof(struct dwarf_fde)
-#define FDE_SIZE 8
 
 FileMap g_file_map;
 static std::vector<std::string> g_bound_names;
@@ -61,9 +59,6 @@ extern bool g_noWeak;
 extern std::set<LoaderHookFunc*> g_machoLoaderHooks;
 extern MachOLoader* g_loader;
 
-// These are GCC internals
-extern "C" void __register_frame(void*);
-extern "C" void __unregister_frame(void*);
 
 static bool lookupDyldFunction(const char* name, void** addr)
 {
@@ -655,14 +650,7 @@ void MachOLoader::doPendingBinds()
 		auto eh_frame = b.macho->get_eh_frame();
 		if (eh_frame.first)
 		{
-			// Move the eh data elsewhere so we can pad with an empty entry to terminate it
-			// TODO: If the DWARF2_OBJECT_END_PTR_EXTENSION is enabled we could use the size and end instead
-			// like darwin does instead of copying the data elsewhere.
-			char *new_eh_frame = new char[eh_frame.second + FDE_SIZE];
-			memcpy(new_eh_frame, reinterpret_cast<char*>(eh_frame.first + b.slide), eh_frame.second);
-			memset(&new_eh_frame[eh_frame.second], 0, FDE_SIZE);
-			__register_frame(reinterpret_cast<void*>(new_eh_frame));
-			// TODO: hang onto the eh_frame info so we can free it later if we unload a module
+			process_eh_frame(eh_frame.first, eh_frame.second, b.slide);
 		}
 		for (LoaderHookFunc* func : g_machoLoaderHooks)
 			func(b.image_index);
