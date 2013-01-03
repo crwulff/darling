@@ -46,7 +46,7 @@ void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide, uint32_t
 			continue;
 		}
 			
-		std::cerr << "Processing category " << cat->name << " on top of class @" << c << " " << class_getName(c) << std::endl;
+		LOG << "Processing category " << cat->name << " on top of class @" << c << " " << class_getName(c) << std::endl;
 
 		if (cat->methods)
 			ConvertMethodListGen(c, cat->methods, image_index);
