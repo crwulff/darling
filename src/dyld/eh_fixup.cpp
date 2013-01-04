@@ -186,7 +186,10 @@ void process_eh_frame(uintptr_t eh_start, uintptr_t eh_size, uintptr_t slide)
 				case 0x10: // PC_Rel Abs
 					p = discard_leb128(p);
 					//std::cerr << "LSDA @" << (void*)p << " " << std::hex << *(uintptr_t*)(p);
-					*(uintptr_t*)(p) -= delta;
+					if (*(uintptr_t*)p != 0)
+					{
+						*(uintptr_t*)(p) -= delta;
+					}
 					//std::cerr << " -> " << std::hex << *(uintptr_t*)(p) << std::endl;
 					break;
 				default:
