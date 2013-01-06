@@ -127,3 +127,4 @@ void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char*
 		}
 	}
 }
+

@@ -42,7 +42,8 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <libgen.h>
 #include "GDBInterface.h"
 #include "dyld.h"
-#include "eh_fixup.h"
+#include "eh/EHSection.h"
+
 
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 0x1000
@@ -59,6 +60,9 @@ extern bool g_noWeak;
 extern std::set<LoaderHookFunc*> g_machoLoaderHooks;
 extern MachOLoader* g_loader;
 
+// These are GCC internals
+extern "C" void __register_frame(void*);
+extern "C" void __unregister_frame(void*);
 
 static bool lookupDyldFunction(const char* name, void** addr)
 {
@@ -102,6 +106,7 @@ static void dumpInt(int bound_name_id)
 MachOLoader::MachOLoader()
 : m_last_addr(0), m_pTrampolineMgr(0)
 {
+#ifdef DEBUG
 	m_pUndefMgr = new UndefMgr;
 
 	if (g_trampoline)
@@ -112,6 +117,7 @@ MachOLoader::MachOLoader()
 		if (info)
 			TrampolineMgr::loadFunctionInfo(info);
 	}
+#endif
 }
 
 MachOLoader::~MachOLoader()
@@ -154,9 +160,11 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, E
 {
 	*base = 0;
 	--*base;
-	
+
+#ifdef DEBUG
 	if (m_pTrampolineMgr)
 		m_pTrampolineMgr->invalidateMemoryMap();
+#endif
 
 	const std::vector<Segment*>& segments = getSegments(mach);
 	for (Segment* seg : segments)
@@ -332,7 +340,7 @@ void MachOLoader::doRebase(const MachO& mach, intptr slide)
 			{
 				uint32_t* ptr = reinterpret_cast<uint32_t*>(addr);
 				LOG << "rebase(abs32): " << addr << ' '
-					<< (void*)*ptr << " => " << (void*)(mach.fixEndian(*ptr) + slide) << std::endl;
+					<< std::hex << *ptr << std::dec << " => " << (void*)(mach.fixEndian(*ptr) + slide) << std::endl;
 				*ptr = mach.fixEndian(*ptr);
 				*ptr += static_cast<uint32_t>(slide);
 				break;
@@ -341,7 +349,7 @@ void MachOLoader::doRebase(const MachO& mach, intptr slide)
 			{
 				uint32_t* ptr = reinterpret_cast<uint32_t*>(addr);
 				LOG << "rebase(pcrel32): " << addr << ' '
-					<< (void*)*ptr << " => " << (void*)(uintptr_t(addr) + 4 - mach.fixEndian(*ptr)) << std::endl;
+					<< std::hex << *ptr << std::dec << " => " << (void*)(uintptr_t(addr) + 4 - mach.fixEndian(*ptr)) << std::endl;
 				*ptr = mach.fixEndian(*ptr);
 				*ptr = uintptr_t(addr) + 4 - (*ptr);
 				break;
@@ -502,9 +510,10 @@ void* MachOLoader::doBind(const std::vector<MachO::Bind*>& binds, intptr slide, 
 
 			LOG << "bind " << name << ": "
 				<< std::hex << *ptr << std::dec << " => " << (void*)sym << " @" << ptr << std::endl;
-
+#ifdef DEBUG
 			if (g_trampoline)
 				sym = (uintptr_t) m_pTrampolineMgr->generate((void*)sym, name.c_str());
+#endif
 
 			writeBind(bind->type, ptr, sym);
 		}
@@ -552,6 +561,7 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 	
 	if (!sym)
 	{
+#ifdef DEBUG
 		static const char* ign_sym = getenv("DYLD_IGN_MISSING_SYMS");
 		if (!bind || !bind->is_classic || !bind->value)
 		{
@@ -571,7 +581,8 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 				throw std::runtime_error(ss.str());
 			}
 		}
-		else
+#endif
+		if (bind && bind->is_classic)
 			sym = uintptr_t(bind->value) + slide;
 	}
 
@@ -697,11 +708,31 @@ void MachOLoader::doPendingBinds()
 	{
 		LOG << "Perform " << b.macho->binds().size() << " binds\n";
 		doBind(b.macho->binds(), b.slide, b.bindLazy);
+
 		auto eh_frame = b.macho->get_eh_frame();
 		if (eh_frame.first)
 		{
-			process_eh_frame(eh_frame.first, eh_frame.second, b.slide);
+			try
+			{
+				EHSection ehSection;
+				void *reworked_eh_data, *original_eh_data;
+				
+				original_eh_data = (void*) (eh_frame.first + b.slide);
+				LOG << "Reworking __eh_frame at " << original_eh_data << std::endl;
+				
+				ehSection.load(original_eh_data, eh_frame.second);
+				ehSection.store(&reworked_eh_data, nullptr);
+				
+				LOG << "Registering reworked __eh_frame at " << reworked_eh_data << std::endl;
+				__register_frame(reworked_eh_data); // TODO: free when unloading the image
+			}
+			catch (const std::exception& e)
+			{
+				LOG << "Failed to rework the __eh_frame: " << e.what() << std::endl;
+				LOG << "Exception handling WILL NOT WORK!\n";
+			}
 		}
+
 		for (LoaderHookFunc* func : g_machoLoaderHooks)
 			func(b.image_index);
 	}
