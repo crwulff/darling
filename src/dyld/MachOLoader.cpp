@@ -174,9 +174,6 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, E
 		intptr filesize = alignMem(seg->filesize, getpagesize());
 		intptr vmaddr = seg->vmaddr + *slide;
 		
-		if (!vmaddr)
-			throw std::runtime_error("Address 0x0 is invalid for mapping");
-		
 		if (vmaddr < m_last_addr)
 		{
 			LOG << "will rebase: filename=" << mach.filename()
@@ -186,6 +183,10 @@ void MachOLoader::loadSegments(const MachO& mach, intptr* slide, intptr* base, E
 			vmaddr = m_last_addr;
 			*slide = vmaddr - seg->vmaddr;
 		}
+
+		if (!vmaddr)
+			throw std::runtime_error("Address 0x0 is invalid for mapping");
+
 		*base = std::min(*base, vmaddr);
 
 		intptr vmsize = alignMem(seg->vmsize, getpagesize());
