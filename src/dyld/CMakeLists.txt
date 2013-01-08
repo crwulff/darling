@@ -32,6 +32,8 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(dyld_SRCS
+	eh/BufReWriter.cpp
+	eh/CFIWalker.cpp
 	eh/DwarfPointer.cpp
 	eh/BufWriter.cpp
 	eh/BufReader.cpp
@@ -41,10 +43,12 @@ set(dyld_SRCS
 	Trampoline.cpp
 	trampoline_helper.nasm
 	dyld_stub_binder.nasm
+	tls_helper.nasm
 	ld.cpp
 	dyld.cpp
 	public.cpp
 	binfmt_misc.cpp
+	TLS.cpp
 	GDBInterface.cpp
 	ELFBlock.cpp
 	DWARFProducer.cpp
