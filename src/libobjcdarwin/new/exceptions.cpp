@@ -34,3 +34,7 @@ void objc_end_catch()
 		__cxa_end_catch();
 }
 
+objc_exception_preprocessor objc_setExceptionPreprocessor(objc_exception_preprocessor fn)
+{
+	return nullptr; // TODO
+}
