@@ -60,7 +60,7 @@ public:
 		};
 		uint8_t type;
 		uint8_t ordinal;
-		bool is_weak, is_lazy, is_classic;
+		bool is_weak, is_lazy, is_classic, is_local;
 		uintptr_t offset; // Needed to find the right bind when doing lazy binding
 	};
 
@@ -131,6 +131,9 @@ public:
 	const std::vector<TLVSection>& tlv_sections() const { return m_tlv_sections; }
 
 	uint64_t dyld_data() const { return m_dyld_data; }
+	
+	__attribute__ ((visibility ("default")))
+	uint64_t relocation_base() const;
 
 	bool is64() const { return m_is64; }
 

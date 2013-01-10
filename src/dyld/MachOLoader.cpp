@@ -343,14 +343,15 @@ void MachOLoader::doRebase(const MachO& mach, intptr slide)
 	}
 }
 
-void MachOLoader::doRelocations(const std::vector<MachO::Relocation*>& rels, intptr base, intptr slide)
+void MachOLoader::doRelocations(const std::vector<MachO::Relocation*>& rels, intptr segmentBase, intptr slide)
 {
+	TRACE2(segmentBase, slide);
 	m_lastResolvedSymbol.clear();
 	m_lastResolvedAddress = 0;
 
 	for (const MachO::Relocation* rel : rels)
 	{
-		uintptr_t* ptr = (uintptr_t*) (uintptr_t(rel->addr) /*+ base*/ + slide);
+		uintptr_t* ptr = (uintptr_t*) (uintptr_t(rel->addr) + segmentBase + slide);
 		uintptr_t symbol;
 		uintptr_t value = *ptr;
 
@@ -515,6 +516,8 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 
 	if (oname == m_lastResolvedSymbol)
 		return m_lastResolvedAddress;
+	if (bind && bind->is_classic && bind->is_local)
+		return bind->value;
 
 	if (oname[0] != '_')
 	{
@@ -540,7 +543,7 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 	{
 #ifdef DEBUG
 		static const char* ign_sym = getenv("DYLD_IGN_MISSING_SYMS");
-		if (!bind || !bind->is_classic || !bind->value)
+		//if (!bind || !bind->is_classic || !bind->value)
 		{
 			if (ign_sym && atoi(ign_sym))
 			{
@@ -559,8 +562,8 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 			}
 		}
 #endif
-		if (bind && bind->is_classic)
-			sym = uintptr_t(bind->value) + slide;
+		//if (bind && bind->is_classic)
+		//	sym = uintptr_t(bind->value) + slide;
 	}
 
 	m_lastResolvedSymbol = oname;
@@ -637,7 +640,7 @@ void MachOLoader::popCurrentLoader()
 void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* exports, bool bindLater, bool bindLazy, ELFBlock* elf)
 {
 	intptr slide = 0;
-	intptr base = 0;
+	intptr base = 0, segmentBase;
 	const FileMap::ImageMap* img;
 	size_t origRpathCount;
 
@@ -647,7 +650,6 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	loadSegments(mach, &slide, &base, elf);
 
 	doRebase(mach, slide);
-	doMProtect(); // decrease the segment protection value
 	
 	
 	origRpathCount = m_rpathContext.size();
@@ -666,7 +668,11 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	
 	if (!bindLater)
 		doBind(mach.binds(), slide, !bindLazy);
-	doRelocations(mach.relocations(), base, slide);
+	
+	segmentBase = mach.relocation_base();
+	
+	doRelocations(mach.relocations(), segmentBase, slide);
+	doMProtect(); // decrease the segment protection value
 
 	if (!bindLater)
 	{
