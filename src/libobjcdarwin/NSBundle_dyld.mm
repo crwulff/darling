@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <algorithm>
+#include <map>
 #include "../util/log.h"
 
 extern char g_darwin_executable_path[PATH_MAX];
@@ -18,11 +19,31 @@ static NSAutoreleasePool* g_pool = 0;
 
 void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel);
 
+id GetBundle(const char* filename)
+{
+	NSString *filepath = [[NSString alloc] initWithCString:filename];
+	filepath = [filepath stringByDeletingLastPathComponent];
+	std::cerr << "Getting bundle for path " << [filepath UTF8String] << std::endl;
+	NSBundle *bundle = [[NSBundle alloc] initWithPath: filepath];
+	std::cerr << "Bundle is " << bundle << std::endl;
+	return bundle;
+}
+
+std::map<Class, NSBundle*> g_bundleMap;
+
+void BundleAddClass(id bundle, Class cls)
+{
+	NSBundle *b = (NSBundle*)bundle;
+	[b addClass: cls];
+	g_bundleMap[cls] = bundle;
+}
+
 __attribute__((constructor)) static void myinit()
 {
 	LOG << "Swizzling methods in NSBundle\n";
 	
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(mainBundle), @selector(x_mainBundle));
+	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(bundleForClass:), @selector(x_bundleForClass:));
 	
 	// Many OS X apps assume that there is a "default" autorelease pool provided
 	g_pool = [[NSAutoreleasePool alloc] init];
@@ -95,7 +116,24 @@ __attribute__((destructor)) static void myexit()
 
 +(NSBundle*) x_bundleForClass: (Class) aClass
 {
-	return [super gnu_bundleForClass:aClass];
+	NSBundle *bundle = nullptr;
+
+	auto i = g_bundleMap.find(aClass);
+	if (i != g_bundleMap.end())
+	{
+		bundle = i->second;
+	}
+	else
+	{
+		bundle = [super gnu_bundleForClass:aClass];
+	}
+	return bundle;
+}
+
+-(void) addClass : (Class) cls
+{
+	NSValue *value = [NSValue valueWithPointer: (void*)cls];
+	[self->_bundleClasses addObject: value];
 }
 
 @end

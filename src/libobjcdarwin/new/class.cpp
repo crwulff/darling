@@ -12,7 +12,9 @@
 
 extern std::map<const void*,Class> g_classPointers;
 
-Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
+extern void BundleAddClass(id bundle, Class cls);
+
+Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index, id bundle)
 {
 	if (nullptr == cls)
 	{
@@ -26,7 +28,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 		return itClass->second;
 	}
 
-	Class super = RegisterClass(cls->superclass, slide, image_index);
+	Class super = RegisterClass(cls->superclass, slide, image_index, bundle);
 
 	LOG << "...superclass is @" << super << std::endl;
 	if (nullptr != super)
@@ -101,10 +103,15 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 	class_getSuperclass(meta); // HACK to force the class to be resolved (gnustep-libobjc2 blows up because cls->isa->isa is a char* still otherwise when we next use it as a superclass)
 	g_classPointers[meta] = meta;
 
+	if (nullptr != bundle)
+	{
+		BundleAddClass(bundle, conv);
+	}
+
 	return conv;
 }
 
-void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section, uint32_t image_index)
+void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section, uint32_t image_index, id bundle)
 {
 	class_t **classes, **classes_end;
 	unsigned long size;
@@ -119,7 +126,7 @@ void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char*
 
 		while (classes < classes_end)
 		{
-			Class c = RegisterClass(*classes, slide, image_index);
+			Class c = RegisterClass(*classes, slide, image_index, bundle);
 			LOG << "Fixup @" << classes << " " << *classes << " -> " << c <<std::endl;
 			*classes = (class_t*)c;
 

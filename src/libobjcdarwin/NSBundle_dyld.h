@@ -10,6 +10,8 @@
 +(NSBundle*) gnu_bundleForClass: (Class) aClass;
 +(NSBundle*) x_bundleForClass: (Class) aClass;
 
+-(void) addClass : (Class) cls;
+
 @end
 
 

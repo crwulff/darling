@@ -26,6 +26,8 @@ std::map<const void*,Class> g_classPointers;
 std::map<Class, IMP> g_realLoads;
 std::list<id>        g_pendingLoads;
 
+extern id GetBundle(const char* filename);
+
 void RegisterNativeClass(void* cls)
 {
 	LOG << "Register Native Class @ " << cls << std::endl;
@@ -74,16 +76,19 @@ void ProcessImageLoad(uint32_t image_index)
 {
 	const struct mach_header *mh = _dyld_get_image_header(image_index);
 	intptr_t slide = _dyld_get_image_vmaddr_slide(image_index);
+	const char *name = _dyld_get_image_name(image_index);
 	unsigned long size;
 
 	LOG << "ObjC ProcessImageLoad @" << mh << std::endl;
 
+	id bundle = GetBundle(name);
+
 #ifdef OBJC_ABI_2
 	ProcessProtocolsNew(mh, slide);
 
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, image_index);
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW, image_index);
-	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW, image_index);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, image_index, bundle);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW, image_index, nullptr);
+	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW, image_index, nullptr);
 
 	ProcessCategoriesNew(mh, slide, image_index);
 #else
