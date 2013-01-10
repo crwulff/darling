@@ -32,6 +32,14 @@ const char *malloc_get_zone_name(malloc_zone_t *zone);
 
 void malloc_zone_statistics(malloc_zone_t* zone, __darwin_malloc_statistics_t* stats);
 
+// Collectable object functions
+typedef malloc_zone_t auto_zone_t;
+typedef int auto_memory_type_t;
+typedef bool boolean_t;
+
+auto_zone_t *objc_collectableZone(void);
+void* auto_zone_allocate_object(auto_zone_t *zone, size_t size, auto_memory_type_t type, boolean_t initial_refcount_to_one, boolean_t clear);
+
 }
 
 #endif

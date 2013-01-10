@@ -73,3 +73,14 @@ void malloc_zone_statistics(malloc_zone_t* zone, __darwin_malloc_statistics_t* s
 	stats->blocks_in_use = stats->size_in_use;
 }
 
+malloc_zone_t *objc_collectableZone(void)
+{
+	return malloc_default_zone();
+}
+
+void* auto_zone_allocate_object(auto_zone_t *zone, size_t size, auto_memory_type_t type, boolean_t initial_refcount_to_one, boolean_t clear)
+{
+	// TODO: Return garbage collected memory instead of straight malloc'd
+	return (clear) ? calloc(1, size) : malloc(size);
+}
+
