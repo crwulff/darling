@@ -84,3 +84,8 @@ void* auto_zone_allocate_object(auto_zone_t *zone, size_t size, auto_memory_type
 	return (clear) ? calloc(1, size) : malloc(size);
 }
 
+void auto_assign_weak_reference(auto_zone_t *zone, const void *value, void *const*location, auto_weak_callback_block_t *block)
+{
+	// TODO
+}
+

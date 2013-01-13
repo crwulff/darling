@@ -40,6 +40,15 @@ typedef bool boolean_t;
 auto_zone_t *objc_collectableZone(void);
 void* auto_zone_allocate_object(auto_zone_t *zone, size_t size, auto_memory_type_t type, boolean_t initial_refcount_to_one, boolean_t clear);
 
+typedef struct auto_weak_callback_block {
+	struct auto_weak_callback_block *next;
+	void (*callback_function)(void *arg1, void *arg2);
+	void *arg1;
+	void *arg2;
+} auto_weak_callback_block_t;
+
+void auto_assign_weak_reference(auto_zone_t *zone, const void *value, void *const*location, auto_weak_callback_block_t *block);
+
 }
 
 #endif
