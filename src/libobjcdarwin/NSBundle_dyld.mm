@@ -23,9 +23,9 @@ id GetBundle(const char* filename)
 {
 	NSString *filepath = [[NSString alloc] initWithCString:filename];
 	filepath = [filepath stringByDeletingLastPathComponent];
-	std::cerr << "Getting bundle for path " << [filepath UTF8String] << std::endl;
+	LOG << "Getting bundle for path " << [filepath UTF8String] << std::endl;
 	NSBundle *bundle = [[NSBundle alloc] initWithPath: filepath];
-	std::cerr << "Bundle is " << bundle << std::endl;
+	LOG << "Bundle is " << bundle << std::endl;
 	return bundle;
 }
 
