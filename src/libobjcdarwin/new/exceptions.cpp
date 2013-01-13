@@ -1,5 +1,6 @@
 #include "exceptions.h"
 #include "return.h"
+#include <stdio.h>
 
 extern "C" void __cxa_rethrow();
 extern "C" void* __cxa_begin_catch(void*);
@@ -34,7 +35,18 @@ void objc_end_catch()
 		__cxa_end_catch();
 }
 
+void* default_exception_preprocessor(void* exception)
+{
+	fprintf(stderr, "default_exception_preprocessor: exception %p\n", exception);
+	return exception;
+}
+
+objc_exception_preprocessor exceptionPreprocessor = &default_exception_preprocessor;
+
 objc_exception_preprocessor objc_setExceptionPreprocessor(objc_exception_preprocessor fn)
 {
-	return nullptr; // TODO
+	fprintf(stderr, "objc_setExceptionPreprocessor %p\n", fn);
+	objc_exception_preprocessor oldExceptionPreprocessor = exceptionPreprocessor;
+	exceptionPreprocessor = fn;
+	return oldExceptionPreprocessor;
 }
