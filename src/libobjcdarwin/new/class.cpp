@@ -97,10 +97,8 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index, id
 
 	objc_registerClassPair(conv);
 	LOG << "ObjC class " << cls->data()->className << " now @" << conv << std::endl;
-	class_getSuperclass(conv); // HACK to force the class to be resolved (gnustep-libobjc2 blows up because cls->isa->isa is a char* still otherwise when we next use it as a superclass)
 	g_classPointers[cls] = conv;
 	g_classPointers[conv] = conv;
-	class_getSuperclass(meta); // HACK to force the class to be resolved (gnustep-libobjc2 blows up because cls->isa->isa is a char* still otherwise when we next use it as a superclass)
 	g_classPointers[meta] = meta;
 
 	if (nullptr != bundle)
