@@ -383,10 +383,11 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 		m_base + (m_is64 ? sizeof(mach_header_64) : sizeof(mach_header))
 	);
 
-	uint32_t* symtab = 0;
-	uint32_t* dysyms = 0;
-	const char* symstrtab = 0;
-	dyld_info_command* dyinfo = 0;
+	uint32_t* symtab = nullptr;
+	uint32_t* dysyms = nullptr;
+	const char* symstrtab = nullptr;
+	dyld_info_command* dyinfo = nullptr;
+	dysymtab_command* dysymtab_cmd = nullptr;
 
 	struct relocation_info *ext_relocinfo = 0, *loc_relocinfo = 0;
 	uint32_t ext_reloccount = 0, loc_reloccount = 0;
@@ -512,7 +513,7 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 
 		case LC_DYSYMTAB:
 		{
-			dysymtab_command* dysymtab_cmd = reinterpret_cast<dysymtab_command*>(cmds_ptr);
+			dysymtab_cmd = reinterpret_cast<dysymtab_command*>(cmds_ptr);
 
 			LOGF("dysym:\n"
 				" ilocalsym=%u nlocalsym=%u\n"
@@ -722,6 +723,23 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 				readInternalRelocation(&loc_relocinfo[i]);
 		}
 	}
+
+	if (dysymtab_cmd != nullptr)
+	{
+		int expStart, expCount;
+		expStart = dysymtab_cmd->iextdefsym;
+		expCount = dysymtab_cmd->nextdefsym;
+
+		for (int i = expStart; i < expStart+expCount; i++)
+		{
+			Export* exp = new Export;
+			exp->name = m_symbols[i].name;
+			exp->addr = m_symbols[i].addr;
+			exp->flag = 0;
+			exp->resolver = 0;
+			m_exports.push_back(exp);
+		}
+	}
 }
 
 #if defined(__i386__)
@@ -735,6 +753,7 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 {
 	Rebase* rebase;
+	const uint64_t relocBase = relocation_base();
 
 #ifndef __x86_64__ // "In the OS X x86-64 environment scattered relocations are not used."
 	if (reloc->r_address & R_SCATTERED)
@@ -771,7 +790,9 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 			return;
 		}
 
-		rebase = new Rebase { uint64_t(reloc->r_address) & 0xffffffff, REBASE_TYPE_POINTER };
+		rebase = new Rebase { uint64_t(reloc->r_address + relocBase) & 0xffffffff, REBASE_TYPE_POINTER };
+
+		LOG << "Adding a rebase: 0x" << std::hex << rebase->vmaddr << std::dec << std::endl;
 	}
 
 	if (rebase)
@@ -780,6 +801,8 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 
 void MachOImpl::readExternalRelocation(const struct relocation_info* reloc, uint32_t* symtab, const char* symstrtab)
 {
+	const uint64_t relocBase = relocation_base();
+
 	if (!reloc->r_extern)
 		throw std::runtime_error("Invalid external relocation");	
 
@@ -804,11 +827,11 @@ void MachOImpl::readExternalRelocation(const struct relocation_info* reloc, uint
 			Relocation* relocation = new Relocation;
 			nlist* sym = (nlist*)(symtab + reloc->r_symbolnum * (m_is64 ? 4 : 3));
 
-			relocation->addr = reloc->r_address;
+			relocation->addr = reloc->r_address + relocBase;
 			relocation->name = symstrtab + sym->n_strx;
 			relocation->pcrel = reloc->r_pcrel != 0;
 			
-			LOG << "External relocation: " << std::hex << relocation->addr << std::dec
+			LOG << "External relocation: 0x" << std::hex << relocation->addr << std::dec
 				<< "; name: " << relocation->name << "; pcrel: " << relocation->pcrel << std::endl;
 
 			m_relocations.push_back(relocation);

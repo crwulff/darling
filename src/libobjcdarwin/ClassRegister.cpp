@@ -17,10 +17,12 @@
 #include "common/cfstring.h"
 #include "common/method.h"
 #include <map>
+#include <queue>
 
 // Superclass references in Mach-O don't use classref
 // Neither do category class references
 std::map<const void*,Class> g_classPointers;
+std::queue<Class> g_pendingInitClasses;
 
 // Deferred load calls
 std::map<Class, IMP> g_realLoads;
@@ -111,6 +113,14 @@ void ProcessImageLoad(uint32_t image_index)
 
 	ProcessPendingLoads();
 
+	static SEL selInit = sel_getUid("init");
+	while (!g_pendingInitClasses.empty())
+	{
+		id c = (id)  g_pendingInitClasses.front();
+		IMP imp = objc_msg_lookup(c, selInit);
+		g_pendingInitClasses.pop();
+		imp(c, selInit);
+	}
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
 

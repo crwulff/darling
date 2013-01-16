@@ -1,5 +1,9 @@
 #ifndef COMMON_METHOD_H
 #define COMMON_METHOD_H
+#include <queue>
+#include <cstring>
+
+extern std::queue<Class> g_pendingInitClasses;
 
 #include <map>
 #include <list>
@@ -39,6 +43,9 @@ template<typename ListType> void ConvertMethodListGen(Class c, const ListType* l
 		else
 		{
 			class_addMethod(c, sel, reinterpret_cast<IMP>(m->impl), m->types);
+
+			if (isMeta && strcmp(m->selName, "init") == 0)
+				g_pendingInitClasses.push(c);
 		}
 	}
 }
