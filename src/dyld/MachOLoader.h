@@ -74,7 +74,7 @@ public:
 	void doMProtect();
 	
 	// Creates a list of publicly visible functions in this module
-	void loadExports(const MachO& mach, intptr base, Exports* exports, ELFBlock* elf = nullptr);
+	void loadExports(const MachO& mach, intptr slide, Exports* exports, ELFBlock* elf = nullptr);
 	
 	// Loads a Mach-O file and does all the processing
 	void load(const MachO& mach, std::string sourcePath, Exports* exports = 0, bool bindLater = false, bool bindLazy = false, ELFBlock* elf = nullptr);

@@ -595,15 +595,15 @@ void MachOLoader::writeBind(int type, uintptr_t* ptr, uintptr_t newAddr)
 #endif
 }
 
-void MachOLoader::loadExports(const MachO& mach, intptr base, Exports* exports, ELFBlock* elf)
+void MachOLoader::loadExports(const MachO& mach, intptr slide, Exports* exports, ELFBlock* elf)
 {
 	exports->rehash(exports->size() + mach.exports().size());
 	
 	for (MachO::Export* exp : mach.exports())
 	{
-		exp->addr += base;
+		exp->addr += slide;
 		if (exp->resolver) // EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER support
-			exp->resolver += base;
+			exp->resolver += slide;
 
 		// TODO(hamaji): Not 100% sure, but we may need to consider weak symbols.
 		if (!exports->insert(make_pair(exp->name, *exp)).second)
@@ -651,7 +651,6 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 
 	doRebase(mach, slide);
 	
-	
 	origRpathCount = m_rpathContext.size();
 	
 	for (const char* rpath : mach.rpaths())
@@ -661,7 +660,7 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	
 	loadInitFuncs(mach, slide);
 
-	loadExports(mach, base, exports, elf);
+	loadExports(mach, slide, exports, elf);
 	
 	uint32_t image_index = 0;
 	img = g_file_map.add(mach, slide, base, bindLazy, elf, image_index);
