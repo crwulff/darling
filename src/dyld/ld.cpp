@@ -148,6 +148,7 @@ static void initLD()
 	g_searchPath.push_back(LIB_PATH);
 	g_searchPath.push_back("/lib");
 	g_searchPath.push_back("/usr/lib");
+	g_searchPath.push_back(".");
 	//find paths from ldconfig
 	findSearchpathsWildcard(LD_SO_CONFIG);
 }
