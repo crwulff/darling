@@ -1,5 +1,6 @@
 #include "ASLMsg.h"
 #include "asl.h"
+#include <iostream>
 
 ASLMsg::ASLMsg(int type)
 	: m_type(type)
@@ -22,6 +23,7 @@ bool ASLMsg::set(const char* key, const char* value)
 
 bool ASLMsg::set(const char* key, int op, const char* value)
 {
+	std::cerr << "ASLMsg::set key \"" << key << "\" value \"" << (value ? value : "(nil)") << "\"" << std::endl;
 	if (op && m_type != ASL_TYPE_QUERY)
 		return false;
 

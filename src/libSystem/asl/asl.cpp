@@ -1,8 +1,10 @@
 #include "asl.h"
 #include "ASLMsg.h"
 #include "ASLClient.h"
+#include "ASLSyslogClient.h"
 #include "ASLResponse.h"
 #include <cstdlib>
+#include <iostream>
 
 static const int DEFAULT_BUFFER_SIZE = 1024;
 static const char* ASL_LEVELS[] = { ASL_STRING_EMERG, ASL_STRING_ALERT, ASL_STRING_CRIT, ASL_STRING_ERR,
@@ -28,7 +30,8 @@ uint32_t _asl_evaluate_send(aslclient asl, aslmsg msg, int level)
 
 aslclient asl_open(const char *ident, const char *facility, uint32_t opts)
 {
-	return nullptr; // TODO
+	std::cerr << __FUNCTION__ << " " << ident << " " << facility << std::endl;
+	return new ASLSyslogClient(ident, facility, opts);
 }
 
 void asl_close(aslclient asl)
@@ -38,12 +41,12 @@ void asl_close(aslclient asl)
 
 int asl_add_log_file(aslclient asl, int descriptor)
 {
-	return 1; // TODO
+	return !asl->addLogFile(descriptor);
 }
 
 int asl_remove_log_file(aslclient asl, int descriptor)
 {
-	return 1; // TODO
+	return !asl->removeLogFile(descriptor);
 }
 
 int asl_set_filter(aslclient asl, int f)
@@ -143,12 +146,12 @@ int asl_set_query(aslmsg msg, const char *key, const char *value, uint32_t op)
 
 aslresponse asl_search(aslclient asl, aslmsg msg)
 {
-	return nullptr; // TODO
+	return asl->search(msg);
 }
 
 aslmsg aslresponse_next(aslresponse r)
 {
-	return nullptr; // TODO
+	return r->next();
 }
 
 void aslresponse_free(aslresponse r)

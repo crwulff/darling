@@ -59,19 +59,13 @@ void MachOImpl::readClassicBind(const section& sec, uint32_t* dysyms, uint32_t* 
 
 		MachO::Bind* bind = new MachO::Bind();
 		bind->name = symstrtab + sym->n_strx;
-		bind->vmaddr = sec.addr + i * m_ptrsize;
-		bind->value = sym->n_value;
+		bind->vmaddr = ptrTo64(sec.addr + i * m_ptrsize);
+		bind->value = ptrTo64(sym->n_value);
 		bind->type = BIND_TYPE_POINTER;
 		bind->ordinal = 1;
 		bind->is_weak = ((sym->n_desc & N_WEAK_DEF) != 0);
 		bind->is_classic = true;
 		bind->is_local = (sym->n_type & N_TYPE) == N_SECT;
-
-		if (!m_is64)
-		{
-			bind->vmaddr &= 0xffffffff;
-			bind->value &= 0xffffffff;
-		}
 
 		LOG << "add classic bind: " << bind->name << '(' << index << ") type=" << int(sym->n_type) << " sect=" << int(sym->n_sect)
 			<< " desc=" << sym->n_desc << " value=" << sym->n_value << " vmaddr=" << (void*)(bind->vmaddr)
@@ -102,18 +96,12 @@ void MachOImpl::readStubBind(const section& sec,  uint32_t* dysyms, uint32_t* sy
 
 		MachO::Bind* bind = new MachO::Bind();
 		bind->name = symstrtab + sym->n_strx;
-		bind->vmaddr = sec.addr + i * element_size;
-		bind->value = sym->n_value;
+		bind->vmaddr = ptrTo64(sec.addr + i * element_size);
+		bind->value = ptrTo64(sym->n_value);
 		bind->type = BIND_TYPE_STUB;
 		bind->ordinal = 1;
 		bind->is_weak = ((sym->n_desc & N_WEAK_DEF) != 0);
 		bind->is_classic = true;
-
-		if (!m_is64)
-		{
-			bind->vmaddr &= 0xffffffff;
-			bind->value &= 0xffffffff;
-		}
 
 		m_binds.push_back(bind);
 
@@ -368,11 +356,6 @@ MachOImpl::MachOImpl(const char* filename, int fd, size_t offset, size_t len, bo
 		<< header->ncmds << " sizeofcmds=" << header->sizeofcmds << " flags=" << std::hex << header->flags << std::dec << std::endl;
 
 	m_ptrsize = m_is64 ? 8 : 4;
-
-	if ((header->cputype & 0x00ffffff) != CPU_TYPE_X86)
-	{
-		throw std::runtime_error("Unsupported CPU type in Mach-O");
-	}
 
 	processLoaderCommands(header);
 }
@@ -677,6 +660,7 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 		case LC_ID_DYLIB:
 		case LC_DYLIB_CODE_SIGN_DRS:
 		case LC_TWOLEVEL_HINTS:
+		case LC_ENCRYPTION_INFO: // iOS only?
 			break;
 
 		case LC_PREBOUND_DYLIB:
@@ -771,7 +755,7 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 			return;
 		}
 
-		rebase = new Rebase { scattered->r_address, REBASE_TYPE_POINTER };
+		rebase = new Rebase { ptrTo64(scattered->r_address), REBASE_TYPE_POINTER };
 	}
 	else
 #endif
@@ -790,7 +774,7 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 			return;
 		}
 
-		rebase = new Rebase { uint64_t(reloc->r_address + relocBase), REBASE_TYPE_POINTER };
+		rebase = new Rebase { ptrTo64(reloc->r_address + relocBase), REBASE_TYPE_POINTER };
 
 		LOG << "Adding a rebase: 0x" << std::hex << rebase->vmaddr << std::dec << std::endl;
 	}

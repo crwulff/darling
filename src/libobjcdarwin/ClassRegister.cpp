@@ -24,10 +24,6 @@
 std::map<const void*,Class> g_classPointers;
 std::queue<Class> g_pendingInitClasses;
 
-// Deferred load calls
-std::map<Class, IMP> g_realLoads;
-std::list<id>        g_pendingLoads;
-
 extern id GetBundle(const char* filename);
 
 void RegisterNativeClass(void* cls)
@@ -53,25 +49,6 @@ __attribute__((constructor))
 	_dyld_register_func_for_add_objc_class(RegisterNativeClass);
 
 	//std::cout << "Done registering\n";
-}
-
-void ProcessPendingLoads(void)
-{
-	SEL loadSel = sel_getUid("load");
-	for (auto load : g_pendingLoads)
-	{
-		// load method was registered on the metaclass
-		auto realLoad = g_realLoads.find(object_getClass(load));
-		if (realLoad != g_realLoads.end())
-		{
-			realLoad->second(load, loadSel);
-		}
-		else
-		{
-			std::cerr << "Real load method not found for class @" << load << std::endl;
-		}
-	}
-	g_pendingLoads.clear();
 }
 
 void ProcessImageLoad(uint32_t image_index)
@@ -111,16 +88,15 @@ void ProcessImageLoad(uint32_t image_index)
 	UpdateSelectors(mh, slide);
 	UpdateCFStrings(mh);
 
-	ProcessPendingLoads();
-
-	static SEL selInit = sel_getUid("init");
+	static SEL selInit = sel_getUid("load");
 	while (!g_pendingInitClasses.empty())
 	{
-		id c = (id)  g_pendingInitClasses.front();
+		id c = (id) g_pendingInitClasses.front();
 		IMP imp = objc_msg_lookup(c, selInit);
 		g_pendingInitClasses.pop();
 		imp(c, selInit);
 	}
+
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
 
