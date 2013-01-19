@@ -12,13 +12,14 @@ endif(COMMAND cmake_policy)
 #configure_file(config.h.in config.h)
 
 # CMake is broken and uses C++ flags for ObjC
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fblocks")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
 set(Foundation_SRCS
+	NSNotificationCenter.m
 	NSTextCheckingResult.m
 	NSURL.m
 )
