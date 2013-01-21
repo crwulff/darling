@@ -23,3 +23,18 @@ extern CFStringRef kLSSharedFileListItemHidden;
 extern CFStringRef kLSSharedFileListLoginItemHidden;
 
 }
+
+// Undocumented
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsComputer;
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsEjectableVolume;
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsIDisk;
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsMeetingRoom;
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsNetwork;
+CF_EXPORT const CFStringRef kLSSharedFileListItemIsRemoteDisc;
+CF_EXPORT const CFStringRef kLSSharedFileListItemLocked;
+CF_EXPORT const CFStringRef kLSSharedFileListItemTargetIsDirectory;
+CF_EXPORT const CFStringRef kLSSharedFileListItemTargetIsVolume;
+CF_EXPORT const CFStringRef kLSSharedFileListItemTargetName;
+CF_EXPORT const CFStringRef kLSSharedFileListSavedSearchesItems;
+CF_EXPORT const CFStringRef kLSSharedFileListSharePoints;
+CF_EXPORT const CFStringRef kLSSharedFileListSpecialItemIdentifier;
