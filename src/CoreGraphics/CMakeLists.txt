@@ -1,4 +1,4 @@
-project(CoreServices)
+project(CoreGraphics)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -17,20 +17,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
-set(CoreServices_SRCS
-	Multiprocessing.cpp
-	TextUtils.cpp
-	MacMemory.cpp
-	MacLocales.cpp
-	UnicodeUtilities.cpp
-	Gestalt.cpp
-	FileManager.cpp
-	DateTimeUtils.cpp
-	FixMath.cpp
-	ToolUtils.cpp
-	Math64.cpp
-	DriverSynchronization.cpp
-	DriverServices.cpp
+set(CoreGraphics_SRCS
+	CGDirectDisplay.mm
 )
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")
@@ -38,9 +26,8 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_library(CoreServices SHARED ${CoreServices_SRCS})
-target_link_libraries(CoreServices -Wl,--no-as-needed -licuuc System.B.dylib util
-	-lgnustep-corebase ColorSync LaunchServices Metadata)
+add_library(CoreGraphics SHARED ${CoreGraphics_SRCS})
+target_link_libraries(CoreGraphics -lopal -lgnustep-corebase -lX11)
 
-install(TARGETS CoreServices DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS CoreGraphics DESTINATION "lib${SUFFIX}/darling")
 
