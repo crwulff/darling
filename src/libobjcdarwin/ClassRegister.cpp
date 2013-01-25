@@ -22,7 +22,7 @@
 // Superclass references in Mach-O don't use classref
 // Neither do category class references
 std::map<const void*,Class> g_classPointers;
-std::queue<Class> g_pendingInitClasses;
+std::queue<std::pair<Class,IMP>> g_pendingInitClasses;
 
 extern id GetBundle(const char* filename);
 
@@ -91,10 +91,9 @@ void ProcessImageLoad(uint32_t image_index)
 	static SEL selInit = sel_getUid("load");
 	while (!g_pendingInitClasses.empty())
 	{
-		id c = (id) g_pendingInitClasses.front();
-		IMP imp = objc_msg_lookup(c, selInit);
+		auto pair = g_pendingInitClasses.front();
 		g_pendingInitClasses.pop();
-		imp(c, selInit);
+		pair.second(reinterpret_cast<objc_object*>(pair.first), selInit);
 	}
 
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;

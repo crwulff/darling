@@ -127,7 +127,7 @@ add_subdirectory(src/QuickTime)
 add_subdirectory(src/Security)
 add_subdirectory(src/WebKit)
 add_subdirectory(src/thin)
-add_subdirectory(src/cxx)
+add_subdirectory(src/libstdc++darwin)
 add_subdirectory(src/xpc)
 
 add_dependencies(dyld${SUFFIX} mach-o)

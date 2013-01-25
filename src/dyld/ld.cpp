@@ -53,17 +53,10 @@ extern std::set<ClassRegisterHookFunc*> g_objcClassHooks;
 static Darling::Mutex g_ldMutex;
 static std::map<std::string, LoadedLibrary*> g_ldLibraries;
 static __thread char g_ldError[1024] = "";
-static regex_t g_reAutoMappable;
+static regex_t g_reFrameworkPath;
 static LoadedLibrary g_dummyLibrary;
 
-static std::list<std::string>g_searchPath;
-
-static const char* g_rpathSearch[] = {
-	"",
-	"/Frameworks/",
-	"/OtherFrameworks/",
-	"/SharedFrameworks/",
-};
+static std::list<std::string> g_searchPath;
 
 static const char* g_suffixes[] = { "$DARWIN_EXTSN", "$UNIX2003", "$NOCANCEL" };
 static IniConfig* g_iniConfig = 0;
@@ -73,7 +66,8 @@ static int translateFlags(int flags);
 __attribute__((constructor)) static void initLD();
 static std::list<Darling::DlsymHookFunc> g_dlsymHooks;
 
-extern MachO* g_mainBinary;
+static void* g_libStdCxxDarwin = nullptr;
+
 extern MachOLoader* g_loader;
 extern char g_darwin_executable_path[PATH_MAX];
 extern char g_sysroot[PATH_MAX];
@@ -83,7 +77,8 @@ extern FileMap g_file_map;
 
 static void findSearchpathsWildcard(std::string ldconfig_file_pattern);
 
-static void findSearchpaths(std::string ldconfig_file){
+static void findSearchpaths(std::string ldconfig_file)
+{
 	std::ifstream read(ldconfig_file);
 
 	if(!read.is_open())
@@ -106,6 +101,10 @@ static void findSearchpaths(std::string ldconfig_file){
 		}
 		else
 		{
+			size_t pos = line.find('#');
+			if (pos != std::string::npos)
+				line.resize(pos);
+			// TODO: trim
 			g_searchPath.push_back(line);	
 		}
 	}
@@ -126,8 +125,7 @@ static void findSearchpathsWildcard(std::string ldconfig_file_pattern)
 
 static void initLD()
 {
-	//int rv = regcomp(&g_reAutoMappable, "/(lib[[:alnum:]\\-]+)\\.([[:digit:]]+)(\\.[[:digit:]]+)?\\.dylib", REG_EXTENDED);
-	int rv = regcomp(&g_reAutoMappable, "/(lib[[:alnum:]\\-]+)\\.(.+)\\.dylib", REG_EXTENDED);
+	int rv = regcomp(&g_reFrameworkPath, "/System/Library/Frameworks/([a-zA-Z0-9\\.]+)/Versions/([a-zA-Z0-9\\.]+)/.*", REG_EXTENDED);
 	assert(rv == 0);
 	
 	g_dummyLibrary.name = "/dev/null";
@@ -148,7 +146,6 @@ static void initLD()
 	g_searchPath.push_back(LIB_PATH);
 	g_searchPath.push_back("/lib");
 	g_searchPath.push_back("/usr/lib");
-	g_searchPath.push_back(".");
 	//find paths from ldconfig
 	findSearchpathsWildcard(LD_SO_CONFIG);
 }
@@ -175,6 +172,40 @@ void* __darwin_dlopen(const char* filename, int flag)
 		rpathList.insert(rpathList.end(), callerExecutable->rpaths.begin(), callerExecutable->rpaths.end());
 	
 	return Darling::DlopenWithContext(filename, flag, rpathList);
+}
+
+static const char* resolveAlias(const char* library)
+{
+	if (!g_iniConfig)
+		return nullptr;
+	if (g_iniConfig->hasSection("dylibs"))
+	{
+		const IniConfig::ValueMap* m = g_iniConfig->getSection("dylibs");
+		auto it = m->find(library);
+		if (it != m->end())
+			return it->second.c_str();
+	}
+	if (strncmp(library, "/System/Library/Frameworks/", 27) == 0)
+	{
+		regmatch_t match[3];
+		if (regexec(&g_reFrameworkPath, library, sizeof(match)/sizeof(match[0]), match, 0) != REG_NOMATCH)
+		{
+			std::string name, version;
+			
+			name = std::string(library+match[1].rm_so, match[1].rm_eo - match[1].rm_so);
+			version = std::string(library+match[2].rm_so, match[2].rm_eo - match[2].rm_so);
+			
+			if (g_iniConfig->hasSection(name.c_str()))
+			{
+				const IniConfig::ValueMap* m = g_iniConfig->getSection(name.c_str());
+				auto it = m->find(version);
+				
+				if (it != m->end())
+					return it->second.c_str();
+			}
+		}
+	}
+	return nullptr;
 }
 
 void* Darling::DlopenWithContext(const char* filename, int flag, const std::vector<std::string>& rpaths, bool* notFoundError)
@@ -219,6 +250,8 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 	else if (strncmp(filename, "@loader_path", 12) == 0)
 	{
 		path = replacePathPrefix("@loader_path", filename, g_loader->getCurrentLoader().c_str());
+		LOG << "Current ldr: " << g_loader->getCurrentLoader() << std::endl;
+		LOG << "Full path after replacing @loader_path: " << path << std::endl;
 		if (::access(path.c_str(), R_OK) == 0)
 			RET_IF( attemptDlopen(path.c_str(), flag) );
 	}
@@ -227,18 +260,14 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 		// @rpath - https://wincent.com/wiki/@executable_path,_@load_path_and_@rpath
 		for (std::string rpathSearch : rpaths)
 		{
-			for (const char* extraSuffix : g_rpathSearch) // TODO: do we need this?
-			{
-				bool recNotFoundError;
-				std::string rpathSearchExtra = rpathSearch + extraSuffix;
-				path = replacePathPrefix("@rpath", filename, rpathSearchExtra.c_str());
-				
-				RET_IF( DlopenWithContext(path.c_str(), flag, rpaths, &recNotFoundError) );
+			bool recNotFoundError;
+			path = replacePathPrefix("@rpath", filename, rpathSearch.c_str());
+			
+			RET_IF( DlopenWithContext(path.c_str(), flag, rpaths, &recNotFoundError) );
 
-				// Stop if there was an error, vs just not found
-				if (!recNotFoundError)
-					return nullptr;
-			}
+			// Stop if there was an error, vs just not found
+			if (!recNotFoundError)
+				return nullptr;
 		}
 	}
 	else
@@ -250,16 +279,8 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 				RET_IF( attemptDlopen(path.c_str(), flag) );
 		}
 
-		if (g_iniConfig && g_iniConfig->hasSection("aliases"))
-		{
-			const IniConfig::ValueMap* m = g_iniConfig->getSection("aliases");
-			if (map_contains(*m, filename))
-			{
-				path = map_get(*m, filename);
-				LOG << "Trying " << path << std::endl;
-				RET_IF( attemptDlopen(path.c_str(), flag) );
-			}
-		}
+		if (const char* realPath = resolveAlias(filename))
+			RET_IF( attemptDlopen(realPath, flag) );
 
 		if (strncmp(filename, "/usr/lib/", 9) == 0)
 			filename = filename + 9;
@@ -269,14 +290,22 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 		{
 			path = *it + "/" + filename;
 			LOG << "Trying " << path << std::endl;
-			if (::access(path.c_str(), R_OK) == 0){
+			if (::access(path.c_str(), R_OK) == 0)
+			{
 				RET_IF( attemptDlopen(path.c_str(), flag) );
 			}
-			else{
+			else
+			{
 				if (::access((path+".so").c_str(), R_OK) == 0)
-                                RET_IF( attemptDlopen(path.c_str(), flag) );
-			
+					RET_IF( attemptDlopen(path.c_str(), flag) );
 			}
+		}
+		
+		// Unlike ld-linux, dyld seems to search in . too
+		if (!strchr(filename, '/'))
+		{
+			if (::access(filename, R_OK) == 0)
+				RET_IF( attemptDlopen(filename, flag) );
 		}
 	}
 	
@@ -366,7 +395,15 @@ void* attemptDlopen(const char* filename, int flag)
 			LOG << "Loading a native library " << name << std::endl;
 			// We're loading a native library
 			// TODO: flags
-			void* d = ::dlopen(name, RTLD_NOW|RTLD_GLOBAL);
+			int flags = RTLD_NOW | RTLD_GLOBAL;
+			void* d;
+			
+			// TODO: another hack location for libstdc++darwin.so
+			if (strcmp(name, "libstdc++darwin.so") == 0)
+				flags |= RTLD_DEEPBIND;
+			
+			d = ::dlopen(name, flags);
+			
 			if (d != 0)
 			{
 				LOG << "Native library loaded\n";
@@ -377,6 +414,9 @@ void* attemptDlopen(const char* filename, int flag)
 				lib->type = LoadedLibraryNative;
 				lib->nativeRef = d;
 				//lib->slide = lib->base = 0;
+				
+				if (strstr(name, "libstdc++darwin") != nullptr)
+					g_libStdCxxDarwin = d;
 				
 				g_ldLibraries[name] = lib;
 				return lib;
@@ -694,6 +734,13 @@ void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 			}
 		}
 #endif
+
+		// FIXME: this is very crude, but simple and effective...
+		// "St" == namespace std
+		if (g_libStdCxxDarwin && strstr(translated, "St") != nullptr)
+		{
+			RET_IF(::dlsym(g_libStdCxxDarwin, translated));
+		}
 		
 		RET_IF(TryLoadSymbol(RTLD_DEFAULT, translated));
 		
