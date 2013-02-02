@@ -1,4 +1,5 @@
 #include "arch.h"
+#include "log.h"
 #include <cstring>
 
 // This was dumped on snow leopard.
@@ -73,9 +74,45 @@ const NXArchInfo* NXGetArchInfoFromName(const char *name)
 	for (; info->name; info++)
 	{
 		if (!strcmp(info->name, name))
-    		return info;
+		{
+			return info;
+		}
 	}
 	return 0;
 }
 
+const NXArchInfo* NXGetArchInfoFromCpuType(cpu_type_t cputype, cpu_subtype_t cpusubtype)
+{
+	NXArchInfo* info = __darwin_all_arch_infos;
+	for (; info->name; info++)
+	{
+		if ((info->cputype == cputype) &&
+		    ((info->cpusubtype == cpusubtype) || (-1 == cpusubtype)))
+		{
+			return info;
+		}
+	}
+	return 0;
+}
+
+struct fat_arch* NXFindBestFatArch(cpu_type_t cputype, cpu_subtype_t cpusubtype, struct fat_arch *fat_archs, uint32_t nfat_archs)
+{
+	// TODO
+	LOG << "FIXME: NXFindBestFatArch not implemented" << std::endl;
+	return NULL;
+}
+
+cpu_subtype_t NXCombineCpuSubtypes(cpu_type_t cputype, cpu_subtype_t cpusubtype1, cpu_subtype_t cpusubtype2)
+{
+	if (cpusubtype1 == cpusubtype2)
+	{
+		return cpusubtype1;
+	}
+	else
+	{
+		// TODO
+		LOG << "FIXME: NXCombineCpuSubtypes not fully implemented" << std::endl;
+		return -1;
+	}
+}
 
