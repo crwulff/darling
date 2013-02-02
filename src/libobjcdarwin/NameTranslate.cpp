@@ -68,6 +68,11 @@ static bool ClassTranslator(char* name)
 		return true;
 	}
 #endif
+	else if (strcmp(name, "objc_copyStruct") == 0)
+	{
+		strcpy(name, "objc_copyPropertyStruct");
+		return true;
+	}
 
 	return false;
 }
