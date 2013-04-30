@@ -29,7 +29,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <llvm/PassManager.h>
 #include <llvm/Analysis/Verifier.h>
 #include <llvm/Assembly/PrintModulePass.h>
-#include <llvm/Support/IRBuilder.h>
+#include <llvm/IRBuilder.h>
 #include <llvm/Constant.h>
 #include "llvm/Type.h"
 #include <llvm/ExecutionEngine/JIT.h>

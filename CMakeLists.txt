@@ -81,6 +81,8 @@ include_directories(${LIBKQUEUE_INCLUDE_DIR})
 include_directories(${LIBOBJC2_INCLUDE_DIR})
 include_directories(${LIBOPAL_INCLUDE_DIR})
 
+include_directories(/usr/include/x86_64-linux-gnu/c++/4.7/)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 configure_file(config.h.in config.h)
