@@ -45,6 +45,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "dyld.h"
 #include "eh/EHSection.h"
 #include "TLS.h"
+#include <cxxabi.h>
 
 FileMap g_file_map;
 static std::vector<std::string> g_bound_names;
@@ -550,7 +551,16 @@ uintptr_t MachOLoader::getSymbolAddress(const std::string& oname, const MachO::B
 		{
 			if (ign_sym && atoi(ign_sym))
 			{
-				std::cerr << "!!! Undefined symbol: " << name << std::endl;
+				int status;
+				char* demangled_name = abi::__cxa_demangle(name.c_str(), 0, 0, &status);
+
+				std::cerr << "!!! Undefined symbol: " << name;
+				if (demangled_name)
+				{
+					std::cerr << " (" << demangled_name << ")";
+					free(demangled_name);
+				}
+				std::cerr << std::endl;
 							
 				char* dname = new char[name.size()+1];
 				strcpy(dname, name.c_str());
