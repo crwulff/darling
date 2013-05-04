@@ -38,7 +38,7 @@ void BundleAddClass(id bundle, Class cls)
 	g_bundleMap[cls] = bundle;
 }
 
-__attribute__((constructor)) static void myinit()
+static void myinit()
 {
 	LOG << "Swizzling methods in NSBundle\n";
 	
@@ -69,14 +69,16 @@ __attribute__((destructor)) static void myexit()
 }
 
 @implementation NSBundle (NSBundle_dyld)
-/*
+
 +(void) load
 {
+	myinit();
+#if 0
 	LOG << "Swizzling methods in NSBundle\n";
 	RenameSelector([self class], @selector(mainBundle), @selector(gnu_mainBundle));
 	RenameSelector([self class], @selector(x_mainBundle), @selector(mainBundle));
+#endif
 }
-*/
 
 +(NSBundle*) x_mainBundle
 {
@@ -156,6 +158,10 @@ void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel)
 	{
 		std::swap(orig_method->types, alt_method->types);
 		std::swap(orig_method->imp, alt_method->imp);
+	}
+	else
+	{
+		LOG << "Swizzling method failed\n";
 	}
 }
 
