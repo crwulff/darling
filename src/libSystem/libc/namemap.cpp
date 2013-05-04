@@ -16,55 +16,57 @@ static const char* g_directmap =
 #include "namemap.lst"
 ;
 
-static std::map<std::string,std::string> g_nameMap;
-
 static bool NameTranslator(char* symName);
 
-__attribute__((constructor))
-	static void initTranslation()
+class NameMap : public std::map<std::string,std::string> 
 {
-	std::istringstream istr(g_directmap);
-	std::string line;
+	public:
+		NameMap()
+		{
+			std::istringstream istr(g_directmap);
+			std::string line;
 
-	while (std::getline(istr, line))
-	{
-		if (line.empty() || line[0] == '#')
-			continue;
+			while (std::getline(istr, line))
+			{
+				if (line.empty() || line[0] == '#')
+					continue;
 		
-		std::vector<std::string> segs = string_explode(line, ';');
-		if (segs.size() < 2)
-			continue;
+				std::vector<std::string> segs = string_explode(line, ';');
+				if (segs.size() < 2)
+					continue;
 
-		if (segs[0].compare(0, 3, "32!") == 0)
-		{
+				if (segs[0].compare(0, 3, "32!") == 0)
+				{
 #ifdef __x86_64__
-			continue;
+					continue;
 #else
-			segs[0] = segs[0].substr(3);
+					segs[0] = segs[0].substr(3);
 #endif
-		}
+				}
 
-		if (segs[0].compare(0, 3, "64!") == 0)
-		{
+				if (segs[0].compare(0, 3, "64!") == 0)
+				{
 #ifdef __i386__
-			continue;
+					continue;
 #else
-			segs[0] = segs[0].substr(3);
+					segs[0] = segs[0].substr(3);
 #endif
+				}
+
+				// std::cout << segs[0] << " -> " << segs[1] << std::endl;
+				(*this)[segs[0]] = segs[1];
+			}
+
+			Darling::registerDlsymHook(NameTranslator);
 		}
 
-		// std::cout << segs[0] << " -> " << segs[1] << std::endl;
-		g_nameMap[segs[0]] = segs[1];
-	}
+		~NameMap()
+		{
+			Darling::deregisterDlsymHook(NameTranslator);
+		}
+};
 
-	Darling::registerDlsymHook(NameTranslator);
-}
-
-__attribute__((destructor))
-	static void exitTranslation()
-{
-	Darling::deregisterDlsymHook(NameTranslator);
-}
+static NameMap g_nameMap;
 
 bool NameTranslator(char* symName)
 {
