@@ -92,6 +92,8 @@ struct LoadedLibrary
 #endif
 
 	LoadedLibrary(void) : elf(name) {}
+	LoadedLibrary(const std::string &name, int refCount = 0, LoadedLibraryType type = LoadedLibraryDummy, void *nativeRef = NULL, Exports *exports = NULL) :
+		name(name), refCount(refCount), type(type), nativeRef(nativeRef), exports(exports), elf(name) {}
 };
 
 namespace Darling

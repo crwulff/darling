@@ -54,9 +54,25 @@ static Darling::Mutex g_ldMutex;
 static std::map<std::string, LoadedLibrary*> g_ldLibraries;
 static __thread char g_ldError[1024] = "";
 static regex_t g_reFrameworkPath;
-static LoadedLibrary g_dummyLibrary;
+static LoadedLibrary g_dummyLibrary("/dev/null", 1);
 
-static std::list<std::string> g_searchPath;
+static void findSearchpathsWildcard(std::string ldconfig_file_pattern);
+
+class SearchPathList : public std::list<std::string>
+{
+	public:
+		SearchPathList(void)
+		{
+			//add hardcoded library paths
+			push_back(LIB_PATH);
+			push_back("/lib");
+			push_back("/usr/lib");
+			//find paths from ldconfig
+			findSearchpathsWildcard(LD_SO_CONFIG);
+		}
+};
+
+static SearchPathList g_searchPath;
 
 static const char* g_suffixes[] = { "$DARWIN_EXTSN", "$UNIX2003", "$NOCANCEL" };
 static IniConfig* g_iniConfig = 0;
@@ -74,8 +90,6 @@ extern char g_sysroot[PATH_MAX];
 extern FileMap g_file_map;
 
 #define RET_IF(x) { if (void* p = x) return p; }
-
-static void findSearchpathsWildcard(std::string ldconfig_file_pattern);
 
 static void findSearchpaths(std::string ldconfig_file)
 {
@@ -128,12 +142,6 @@ static void initLD()
 	int rv = regcomp(&g_reFrameworkPath, "/System/Library/Frameworks/([a-zA-Z0-9\\.]+)/Versions/([a-zA-Z0-9\\.]+)/.*", REG_EXTENDED);
 	assert(rv == 0);
 	
-	g_dummyLibrary.name = "/dev/null";
-	g_dummyLibrary.refCount = 1;
-	g_dummyLibrary.type = LoadedLibraryDummy;
-	g_dummyLibrary.nativeRef = 0;
-	g_dummyLibrary.exports = 0;
-	
 	try
 	{
 		g_iniConfig = new IniConfig(ETC_DARLING_PATH "/dylib.conf");
@@ -142,12 +150,6 @@ static void initLD()
 	{
 		std::cerr << e.what() << std::endl;
 	}
-	//add hardcoded library paths
-	g_searchPath.push_back(LIB_PATH);
-	g_searchPath.push_back("/lib");
-	g_searchPath.push_back("/usr/lib");
-	//find paths from ldconfig
-	findSearchpathsWildcard(LD_SO_CONFIG);
 }
 
 static std::string replacePathPrefix(const char* prefix, const char* prefixed, const char* replacement)
