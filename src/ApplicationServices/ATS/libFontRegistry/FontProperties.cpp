@@ -1,0 +1,39 @@
+
+#include "FontProperties.h"
+
+const CFStringRef kXTFontPropertyURL                    = CFSTR( "NSCTFontFileURLAttribute");
+const CFStringRef kXTFontPropertyUUID                   = CFSTR( "XTFontUUIDProperty");
+const CFStringRef kXTFontPropertyBookmark               = CFSTR( "XTFontBookmarkProperty");
+const CFStringRef kXTFontPropertyName                   = CFSTR( "NSFontNameAttribute");
+const CFStringRef kXTFontPropertyFamilyName             = CFSTR( "NSFontFamilyAttribute");
+const CFStringRef kXTFontPropertyFullName               = CFSTR( "NSFontVisibleNameAttribute");
+const CFStringRef kXTFontPropertySubfamilyName          = CFSTR( "NSFontFaceAttribute");
+const CFStringRef kXTFontPropertyInstanceName           = CFSTR( "XTFontInstanceNameProperty");
+const CFStringRef kXTFontPropertyLocalizedFamilyName    = CFSTR( "NSCTFontLocalizedFamilyNameAttribute");
+const CFStringRef kXTFontPropertyLocalizedFullName      = CFSTR( "NSCTFontLocalizedVisibleNameAttribute");
+const CFStringRef kXTFontPropertyLocalizedSubfamilyName = CFSTR( "NSCTFontLocalizedFaceNameAttribute");
+const CFStringRef kXTFontPropertyVersionName            = CFSTR( "XTFontVersionNameProperty");
+const CFStringRef kXTFontPropertyCopyrightName          = CFSTR( "XTFontCopyrightNameProperty");
+const CFStringRef kXTFontPropertyManufacturerName       = CFSTR( "XTFontManufacturerNameProperty" );
+const CFStringRef kXTFontPropertyDesignerName           = CFSTR( "XTFontDesignerNameProperty");
+const CFStringRef kXTFontPropertyTraits                 = CFSTR( "NSCTFontTraitsAttribute");
+const CFStringRef kXTFontPropertyLocalizedNames         = CFSTR( "XTFontLocalizedNamesProperty");
+const CFStringRef kXTFontPropertyCharacterSet           = CFSTR( "NSCTFontCharacterSetAttribute");
+const CFStringRef kXTFontPropertyVariationAxes          = CFSTR( "NSCTFontVariationAxes");
+const CFStringRef kXTFontPropertyVariations             = CFSTR( "NSCTFontVariationAttribute");
+const CFStringRef kXTFontPropertySupportedLanguages     = CFSTR( "NSCTFontLanguagesAttribute");
+const CFStringRef kXTFontPropertyDesignLanguages        = CFSTR( "NSCTFontDesignLanguagesAttribute");
+const CFStringRef kXTFontPropertyEnabled                = CFSTR( "NSCTFontEnabledAttribute");
+const CFStringRef kXTFontPropertyPriority               = CFSTR( "NSCTFontPriorityAttribute");
+const CFStringRef kXTFontPropertyFormat                 = CFSTR( "NSCTFontFormatAttribute");
+const CFStringRef kXTFontPropertyStringEncoding         = CFSTR( "NSCTFontStringEncodingAttribute");
+const CFStringRef kXTFontPropertyIgnoreScriptAnalysis   = CFSTR( "NSCTFontIgnoreScriptAnalysisAttribute");
+const CFStringRef kXTFontPropertyScope                  = CFSTR( "XTFontScopeProperty" );
+const CFStringRef kXTFontPropertyUnicodeRanges          = CFSTR( "XTFontUnicodeRangesProperty" );
+const CFStringRef kXTFontPropertyFlags                  = CFSTR( "XTFontFlagsProperty" );
+const CFStringRef kXTFontPropertyLWFNURLs               = CFSTR( "kXTFontPropertyLWFNURLs" );
+const CFStringRef kXTFontPropertyDomain                 = CFSTR( "NSCTFontDomainAttribute" );
+const CFStringRef kXTFontPropertyDirectory              = CFSTR( "XTFontDirectoryProperty" );
+const CFStringRef kXTFontPropertyFontRef                = CFSTR( "XTFontReferenceProperty" );
+const CFStringRef kXTFontPropertyPrimaryLanguage        = CFSTR( "XTFontPropertyPrimaryLanguage");
+const CFStringRef kXTFontPropertyForFontsLanguageMap    = CFSTR( "XTFontPropertyForFontsLanguageMap");
