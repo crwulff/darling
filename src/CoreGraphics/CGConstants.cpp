@@ -1,0 +1,53 @@
+
+#include "CGConstants.h"
+
+/* CFBundle */
+const CFStringRef kCGDisplayStreamColorSpace                  = CFSTR("CGDisplayStreamColorSpace");
+const CFStringRef kCGDisplayStreamMinimumFrameTime            = CFSTR("CGDisplayStreamMinimumFrameTime");
+const CFStringRef kCGDisplayStreamQueueDepth                  = CFSTR("CGDisplayStreamQueueDepth");
+const CFStringRef kCGDisplayStreamShowCursor                  = CFSTR("CGDisplayStreamShowCursor");
+const CFStringRef kCGDisplayStreamYCbCrMatrix                 = CFSTR("CGDisplayStreamYCbCrMatrix");
+const CFStringRef kCGFontNameKeyCopyright                     = CFSTR("CGFontNameKeyCopyright");
+const CFStringRef kCGFontNameKeyDescription                   = CFSTR("CGFontNameKeyDescription");
+const CFStringRef kCGFontNameKeyDesigner                      = CFSTR("CGFontNameKeyDesigner");
+const CFStringRef kCGFontNameKeyDesignerURL                   = CFSTR("CGFontNameKeyDesignerURL");
+const CFStringRef kCGFontNameKeyFontFamily                    = CFSTR("CGFontNameKeyFontFamily");
+const CFStringRef kCGFontNameKeyFontSubfamily                 = CFSTR("CGFontNameKeyFontSubfamily");
+const CFStringRef kCGFontNameKeyFullName                      = CFSTR("CGFontNameKeyFullName");
+const CFStringRef kCGFontNameKeyLicense                       = CFSTR("CGFontNameKeyLicense");
+const CFStringRef kCGFontNameKeyLicenseURL                    = CFSTR("CGFontNameKeyLicenseURL");
+const CFStringRef kCGFontNameKeyManufacturer                  = CFSTR("CGFontNameKeyManufacturer");
+const CFStringRef kCGFontNameKeyPostScriptName                = CFSTR("CGFontNameKeyPostScriptName");
+const CFStringRef kCGFontNameKeyPreferredFamily               = CFSTR("CGFontNameKeyPreferredFamily");
+const CFStringRef kCGFontNameKeyPreferredSubfamily            = CFSTR("CGFontNameKeyPreferredSubfamily");
+const CFStringRef kCGFontNameKeySampleText                    = CFSTR("CGFontNameKeySampleText");
+const CFStringRef kCGFontNameKeyTrademark                     = CFSTR("CGFontNameKeyTrademark");
+const CFStringRef kCGFontNameKeyUniqueID                      = CFSTR("CGFontNameKeyUniqueID");
+const CFStringRef kCGFontNameKeyVendorURL                     = CFSTR("CGFontNameKeyVendorURL");
+const CFStringRef kCGFontNameKeyVersion                       = CFSTR("CGFontNameKeyVersion");
+const CFStringRef kCGImageBlockBaseAddressAlignmentRequest    = CFSTR("CGImageBlockBaseAddressAlignmentRequest");
+const CFStringRef kCGImageBlockBytesPerRowAlignmentRequest    = CFSTR("CGImageBlockBytesPerRowAlignmentRequest");
+const CFStringRef kCGImageBlockColorSpaceRequest              = CFSTR("CGImageBlockColorSpaceRequest");
+const CFStringRef kCGImageBlockFormatBGRx8                    = CFSTR("CGImageBlockFormatBGRx8");
+const CFStringRef kCGImageBlockFormatRequest                  = CFSTR("CGImageBlockFormatRequest");
+const CFStringRef kCGImageBlockMarkAsReadOnlyRequest          = CFSTR("CGImageBlockMarkAsReadOnlyRequest");
+const CFStringRef kCGImageBlockSingletonRequest               = CFSTR("CGImageBlockSingletonRequest");
+const CFStringRef kCGImagePropertyIOSurface                   = CFSTR("CGImagePropertyIOSurface");
+const CFStringRef kCGImageProviderAlphaIsPremultiplied        = CFSTR("CGImageProviderAlphaIsPremultiplied");
+const CFStringRef kCGImageProviderSupportsMultipleResolutions = CFSTR("CGImageProviderSupportsMultipleResolutions");
+const CFStringRef kCGImageWillDeallocate                      = CFSTR("CGImageWillDeallocate");
+const CFStringRef kCGLineWidthHairline                        = CFSTR("CGLineWidthHairline");
+const CFStringRef kCGMenuBarFilterKey                         = CFSTR("CGMenuBarFilterKey");
+const CFStringRef kCGMenuBarFlagsKey                          = CFSTR("CGMenuBarFlagsKey");
+const CFStringRef kCGMenuBarFullScreenAppleWindowKey          = CFSTR("CGMenuBarFullScreenAppleWindowKey");
+const CFStringRef kCGMenuBarFullScreenFillWindowKey           = CFSTR("CGMenuBarFullScreenFillWindowKey");
+const CFStringRef kCGMenuBarImageWindowKey                    = CFSTR("CGMenuBarImageWindowKey");
+const CFStringRef kCGMenuBarRevealKey                         = CFSTR("CGMenuBarRevealKey");
+const CFStringRef kCGMenuBarStatusBarAvailableSpace           = CFSTR("CGMenuBarStatusBarAvailableSpace");
+const CFStringRef kCGPatternWillDeallocate                    = CFSTR("CGPatternWillDeallocate");
+const CFStringRef kCGPDFXTrapped                              = CFSTR("CGPDFXTrapped");
+const CFStringRef kCGPDFXVersion                              = CFSTR("CGPDFXVersion");
+const CFStringRef kCGSConnectionDefaultSpace                  = CFSTR("CGSConnectionDefaultSpace");
+const CFStringRef kCGSPackagesMainDisplayIdentifier           = CFSTR("CGSPackagesMainDisplayIdentifier");
+const CFStringRef kCGSWindowDirtyRegion                       = CFSTR("CGSWindowDirtyRegion");
+const CFStringRef kCGSWorkspaceBindingSticky                  = CFSTR("CGSWorkspaceBindingSticky");
