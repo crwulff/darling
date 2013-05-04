@@ -20,6 +20,17 @@ CF_EXPORT const CFStringRef _kCFBundleIconFileKey;
 CF_EXPORT const CFStringRef _kCFBundlePackageTypeKey;
 CF_EXPORT const CFStringRef _kCFBundleShortVersionStringKey;
 CF_EXPORT const CFStringRef _kCFBundleSignatureKey;
+CF_EXPORT const CFStringRef _kCFBundleDocumentTypesKey;
+CF_EXPORT const CFStringRef _kCFBundleOldExecutableKey;
+CF_EXPORT const CFStringRef _kCFBundleTypeExtensionsKey;
+CF_EXPORT const CFStringRef _kCFBundleTypeIconFileKey;
+CF_EXPORT const CFStringRef _kCFBundleTypeNameKey;
+CF_EXPORT const CFStringRef _kCFBundleTypeOSTypesKey;
+CF_EXPORT const CFStringRef _kCFBundleTypeRoleKey;
+CF_EXPORT const CFStringRef _kCFBundleURLIconFileKey;
+CF_EXPORT const CFStringRef _kCFBundleURLNameKey;
+CF_EXPORT const CFStringRef _kCFBundleURLSchemesKey;
+CF_EXPORT const CFStringRef _kCFBundleURLTypesKey;
 
 #if 0
 /* CFError.h */
@@ -30,9 +41,7 @@ CF_EXPORT const CFStringRef kCFErrorDescriptionKey;
 CF_EXPORT const CFStringRef kCFErrorUnderlyingErrorKey;
 #endif
 CF_EXPORT const CFStringRef kCFErrorURLKey;
-#if 0
 CF_EXPORT const CFStringRef kCFErrorFilePathKey;
-#endif
 
 /* CFPreferences.h */
 CF_EXPORT const CFStringRef kCFPreferencesAnyApplication;
@@ -66,9 +75,19 @@ CF_EXPORT const CFStringRef _kCFURLParentDirectoryIsVolumeRootKey;
 CF_EXPORT const CFStringRef _kCFURLVolumeIsLocalKey;
 CF_EXPORT const CFStringRef _kCFURLVolumeIsQuarantinedKey;
 CF_EXPORT const CFStringRef _kCFURLVolumeRefNumKey;
+CF_EXPORT const CFStringRef _kCFURLApplicationCategoriesKey;
+CF_EXPORT const CFStringRef _kCFURLBundleIdentifierKey;
+CF_EXPORT const CFStringRef _kCFURLDistinctLocalizedNameKey;
+CF_EXPORT const CFStringRef _kCFURLEffectiveIconFlattenedReferenceDataKey;
+CF_EXPORT const CFStringRef _kCFURLEffectiveIconImageDataKey;
+CF_EXPORT const CFStringRef _kCFURLLocalizedNameDictionaryKey;
+CF_EXPORT const CFStringRef _kCFURLLocalizedTypeDescriptionDictionaryKey;
+CF_EXPORT const CFStringRef _kCFURLPathKey;
+CF_EXPORT const CFStringRef _kCFURLVolumeIsDiskImageKey;
 
 /* ? */
 CF_EXPORT const CFStringRef kCFPasteboardGeneral;
+CF_EXPORT const CFStringRef kCFLocaleCurrentLocaleDidChangeNotification;
 
 /* CFSocketStream.h */
 CF_EXPORT const CFStringRef kCFStreamErrorDomainSOCKS;
@@ -81,6 +100,12 @@ CF_EXPORT const CFStringRef kCFStreamPropertySOCKSVersion;
 CF_EXPORT const CFStringRef kCFStreamSocketSecurityLevelSSLv3;
 CF_EXPORT const CFStringRef kCFStreamSocketSOCKSVersion4;
 CF_EXPORT const CFStringRef kCFStreamSocketSOCKSVersion5;
+
+/* CFSocketStream private? */
+CF_EXPORT const CFStringRef kCFStreamPropertyShouldCloseNativeSocket;
+CF_EXPORT const CFStringRef kCFStreamPropertySocketSSLContext;
+CF_EXPORT const CFStringRef kCFStreamPropertySOCKSProxy;
+CF_EXPORT const CFStringRef kCFStreamSocketSecurityLevelNegotiatedSSL;
 
 /* CFUtilities.h */
 CF_EXPORT const CFStringRef _kCFSystemVersionBuildVersionKey;
@@ -102,3 +127,4 @@ CF_EXPORT const CFStringRef kCFUserNotificationTextFieldValuesKey;
 /* WebServices? */
 CF_EXPORT const CFStringRef kCFWebServicesProviderDefaultDisplayNameKey;
 CF_EXPORT const CFStringRef kCFWebServicesTypeWebSearch;
+CF_EXPORT const CFStringRef kCFWebServicesProviderIdentifierKey;

@@ -19,6 +19,18 @@ const CFStringRef _kCFBundleIconFileKey           = CFSTR("CFBundleIconFile");
 const CFStringRef _kCFBundlePackageTypeKey        = CFSTR("CFBundlePackageType");
 const CFStringRef _kCFBundleShortVersionStringKey = CFSTR("CFBundleShortVersionString");
 const CFStringRef _kCFBundleSignatureKey          = CFSTR("CFBundleSignature");
+const CFStringRef _kCFBundleDocumentTypesKey      = CFSTR("CFBundleDocumentTypes");
+const CFStringRef _kCFBundleOldExecutableKey      = CFSTR("CFBundleOldExecutable");
+const CFStringRef _kCFBundleTypeExtensionsKey     = CFSTR("CFBundleTypeExtensions");
+const CFStringRef _kCFBundleTypeIconFileKey       = CFSTR("CFBundleTypeIconFile");
+const CFStringRef _kCFBundleTypeNameKey           = CFSTR("CFBundleTypeName");
+const CFStringRef _kCFBundleTypeOSTypesKey        = CFSTR("CFBundleTypeOSTypes");
+const CFStringRef _kCFBundleTypeRoleKey           = CFSTR("CFBundleTypeRole");
+const CFStringRef _kCFBundleURLIconFileKey        = CFSTR("CFBundleURLIconFile");
+const CFStringRef _kCFBundleURLNameKey            = CFSTR("CFBundleURLName");
+const CFStringRef _kCFBundleURLSchemesKey         = CFSTR("CFBundleURLSchemes");
+const CFStringRef _kCFBundleURLTypesKey           = CFSTR("CFBundleURLTypes");
+
 
 #if 0
 /* CFError.h */
@@ -29,9 +41,8 @@ const CFStringRef kCFErrorDescriptionKey                 = CFSTR("CFErrorDescrip
 const CFStringRef kCFErrorUnderlyingErrorKey             = CFSTR("CFErrorUnderlyingError");
 #endif
 const CFStringRef kCFErrorURLKey                         = CFSTR("CFErrorURL");
-#if 0
 const CFStringRef kCFErrorFilePathKey                    = CFSTR("CFErrorFilePath");
-#endif
+
 
 /* CFPreferences.h */
 const CFStringRef kCFPreferencesAnyApplication     = CFSTR("CFPreferencesAnyApplication");
@@ -42,62 +53,82 @@ const CFStringRef kCFPreferencesAnyUser            = CFSTR("CFPreferencesAnyUser
 const CFStringRef kCFPreferencesCurrentUser        = CFSTR("CFPreferencesCurrentUser");
 
 /* CFPreferences Private? */
-const CFStringRef kCFManagedPreferencesMCXObjectName      = CFSTR("CFManagedPreferencesMCXObjectName");
-const CFStringRef kCFPreferencesDidChangeNotificationName = CFSTR("CFPreferencesDidChangeNotificationName");
-const CFStringRef kCFPreferencesDidChangeObject           = CFSTR("CFPreferencesDidChangeObject");
+const CFStringRef kCFManagedPreferencesMCXObjectName             = CFSTR("CFManagedPreferencesMCXObjectName");
+const CFStringRef kCFManagedPreferencesMCXNotificationName       = CFSTR("CFManagedPreferencesMCXNotificationName");
+const CFStringRef kCFPreferencesDidChangeNotificationName        = CFSTR("CFPreferencesDidChangeNotificationName");
+const CFStringRef kCFPreferencesWebServicesProviderTypeMap       = CFSTR("CFPreferencesWebServicesProviderTypeMap");
+const CFStringRef kCFPreferencesWebServicesProviderTypeWebSearch = CFSTR("CFPreferencesWebServicesProviderTypeWebSearch");
+const CFStringRef kCFPreferencesDidChangeObject                  = CFSTR("CFPreferencesDidChangeObject");
 
 /* CFURL Private? */
-CF_EXPORT const CFStringRef _kCFURLApplicationHighResolutionModeIsMagnifiedKey       = CFSTR("NSURLApplicationHighResolutionModeIsMagnifiedKey");
-CF_EXPORT const CFStringRef kCFURLBookmarkOriginalPathKey                            = CFSTR("NSURLBookmarkOriginalPathKey");
-CF_EXPORT const CFStringRef _kCFURLCanSetApplicationHighResolutionModeIsMagnifiedKey = CFSTR("NSURLCanSetApplicationHighResolutionModeIsMagnifiedKey");
-CF_EXPORT const CFStringRef _kCFURLCanSetHiddenExtensionKey                          = CFSTR("NSURLCanSetHiddenExtensionKey");
-CF_EXPORT const CFStringRef _kCFURLFileAllocatedSizeOfResourceForkKey                = CFSTR("NSURLFileAllocatedSizeOfResourceForkKey");
-CF_EXPORT const CFStringRef _kCFURLFileIDKey                                         = CFSTR("NSURLFileIDKey");
-CF_EXPORT const CFStringRef _kCFURLFileSecurityKey                                   = CFSTR("NSURLFileSecurityKey");
-CF_EXPORT const CFStringRef _kCFURLFileSizeOfResourceForkKey                         = CFSTR("NSURLFileSizeOfResourceForkKey");
-CF_EXPORT const CFStringRef _kCFURLFinderInfoKey                                     = CFSTR("NSURLFinderInfoKey");
-CF_EXPORT const CFStringRef _kCFURLIsApplicationKey                                  = CFSTR("NSURLIsApplicationKey");
-CF_EXPORT const CFStringRef _kCFURLIsCompressedKey                                   = CFSTR("NSURLIsCompressedKey");
-CF_EXPORT const CFStringRef _kCFURLIsExecutableKey                                   = CFSTR("NSURLIsExecutableKey");
-CF_EXPORT const CFStringRef _kCFURLIsReadableKey                                     = CFSTR("NSURLIsReadableKey");
-CF_EXPORT const CFStringRef _kCFURLIsWriteableKey                                    = CFSTR("NSURLIsWriteableKey");
-CF_EXPORT const CFStringRef _kCFURLParentDirectoryIsVolumeRootKey                    = CFSTR("NSURLParentDirectoryIsVolumeRootKey");
-CF_EXPORT const CFStringRef _kCFURLVolumeIsLocalKey                                  = CFSTR("NSURLVolumeIsLocalKey");
-CF_EXPORT const CFStringRef _kCFURLVolumeIsQuarantinedKey                            = CFSTR("NSURLVolumeIsQuarantinedKey");
-CF_EXPORT const CFStringRef _kCFURLVolumeRefNumKey                                   = CFSTR("NSURLVolumeRefNumKey");
+const CFStringRef _kCFURLApplicationHighResolutionModeIsMagnifiedKey       = CFSTR("NSURLApplicationHighResolutionModeIsMagnifiedKey");
+const CFStringRef kCFURLBookmarkOriginalPathKey                            = CFSTR("NSURLBookmarkOriginalPathKey");
+const CFStringRef _kCFURLCanSetApplicationHighResolutionModeIsMagnifiedKey = CFSTR("NSURLCanSetApplicationHighResolutionModeIsMagnifiedKey");
+const CFStringRef _kCFURLCanSetHiddenExtensionKey                          = CFSTR("NSURLCanSetHiddenExtensionKey");
+const CFStringRef _kCFURLFileAllocatedSizeOfResourceForkKey                = CFSTR("NSURLFileAllocatedSizeOfResourceForkKey");
+const CFStringRef _kCFURLFileIDKey                                         = CFSTR("NSURLFileIDKey");
+const CFStringRef _kCFURLFileSecurityKey                                   = CFSTR("NSURLFileSecurityKey");
+const CFStringRef _kCFURLFileSizeOfResourceForkKey                         = CFSTR("NSURLFileSizeOfResourceForkKey");
+const CFStringRef _kCFURLFinderInfoKey                                     = CFSTR("NSURLFinderInfoKey");
+const CFStringRef _kCFURLIsApplicationKey                                  = CFSTR("NSURLIsApplicationKey");
+const CFStringRef _kCFURLIsCompressedKey                                   = CFSTR("NSURLIsCompressedKey");
+const CFStringRef _kCFURLIsExecutableKey                                   = CFSTR("NSURLIsExecutableKey");
+const CFStringRef _kCFURLIsReadableKey                                     = CFSTR("NSURLIsReadableKey");
+const CFStringRef _kCFURLIsWriteableKey                                    = CFSTR("NSURLIsWriteableKey");
+const CFStringRef _kCFURLParentDirectoryIsVolumeRootKey                    = CFSTR("NSURLParentDirectoryIsVolumeRootKey");
+const CFStringRef _kCFURLVolumeIsLocalKey                                  = CFSTR("NSURLVolumeIsLocalKey");
+const CFStringRef _kCFURLVolumeIsQuarantinedKey                            = CFSTR("NSURLVolumeIsQuarantinedKey");
+const CFStringRef _kCFURLVolumeRefNumKey                                   = CFSTR("NSURLVolumeRefNumKey");
+const CFStringRef _kCFURLApplicationCategoriesKey                          = CFSTR("NSURLApplicationCategories");
+const CFStringRef _kCFURLBundleIdentifierKey                               = CFSTR("NSURLBundleIdentifier");
+const CFStringRef _kCFURLDistinctLocalizedNameKey                          = CFSTR("NSURLDistinctLocalizedName");
+const CFStringRef _kCFURLEffectiveIconFlattenedReferenceDataKey            = CFSTR("NSURLEffectiveIconFlattenedReferenceData");
+const CFStringRef _kCFURLEffectiveIconImageDataKey                         = CFSTR("NSURLEffectiveIconImageData");
+const CFStringRef _kCFURLLocalizedNameDictionaryKey                        = CFSTR("NSURLLocalizedNameDictionary");
+const CFStringRef _kCFURLLocalizedTypeDescriptionDictionaryKey             = CFSTR("NSURLLocalizedTypeDescriptionDictionary");
+const CFStringRef _kCFURLPathKey                                           = CFSTR("NSURLPath");
+const CFStringRef _kCFURLVolumeIsDiskImageKey                              = CFSTR("NSURLVolumeIsDiskImage");
 
 /* ? */
-CF_EXPORT const CFStringRef kCFPasteboardGeneral = CFSTR("CFPasteboardGeneral");
+const CFStringRef kCFPasteboardGeneral                        = CFSTR("CFPasteboardGeneral");
+const CFStringRef kCFLocaleCurrentLocaleDidChangeNotification = CFSTR("CFLocaleCurrentLocaleDidChangeNotification");
 
 /* CFSocketStream.h */
-CF_EXPORT const CFStringRef kCFStreamErrorDomainSOCKS         = CFSTR("CFStreamErrorDomainSOCKS");
-CF_EXPORT const CFStringRef kCFStreamErrorDomainSSL           = CFSTR("CFStreamErrorDomainSSL");
-CF_EXPORT const CFStringRef kCFStreamPropertySOCKSPassword    = CFSTR("CFStreamPropertySOCKSPassword");
-CF_EXPORT const CFStringRef kCFStreamPropertySOCKSProxyHost   = CFSTR("CFStreamPropertySOCKSProxyHost");
-CF_EXPORT const CFStringRef kCFStreamPropertySOCKSProxyPort   = CFSTR("CFStreamPropertySOCKSProxyPort");
-CF_EXPORT const CFStringRef kCFStreamPropertySOCKSUser        = CFSTR("CFStreamPropertySOCKSUser");
-CF_EXPORT const CFStringRef kCFStreamPropertySOCKSVersion     = CFSTR("CFStreamPropertySOCKSVersion");
-CF_EXPORT const CFStringRef kCFStreamSocketSecurityLevelSSLv3 = CFSTR("CFStreamSocketSecurityLevelSSLv3");
-CF_EXPORT const CFStringRef kCFStreamSocketSOCKSVersion4      = CFSTR("CFStreamSocketSOCKSVersion4");
-CF_EXPORT const CFStringRef kCFStreamSocketSOCKSVersion5      = CFSTR("CFStreamSocketSOCKSVersion5");
+const CFStringRef kCFStreamErrorDomainSOCKS         = CFSTR("CFStreamErrorDomainSOCKS");
+const CFStringRef kCFStreamErrorDomainSSL           = CFSTR("CFStreamErrorDomainSSL");
+const CFStringRef kCFStreamPropertySOCKSPassword    = CFSTR("CFStreamPropertySOCKSPassword");
+const CFStringRef kCFStreamPropertySOCKSProxyHost   = CFSTR("CFStreamPropertySOCKSProxyHost");
+const CFStringRef kCFStreamPropertySOCKSProxyPort   = CFSTR("CFStreamPropertySOCKSProxyPort");
+const CFStringRef kCFStreamPropertySOCKSUser        = CFSTR("CFStreamPropertySOCKSUser");
+const CFStringRef kCFStreamPropertySOCKSVersion     = CFSTR("CFStreamPropertySOCKSVersion");
+const CFStringRef kCFStreamSocketSecurityLevelSSLv3 = CFSTR("CFStreamSocketSecurityLevelSSLv3");
+const CFStringRef kCFStreamSocketSOCKSVersion4      = CFSTR("CFStreamSocketSOCKSVersion4");
+const CFStringRef kCFStreamSocketSOCKSVersion5      = CFSTR("CFStreamSocketSOCKSVersion5");
+
+/* CFSocketStream private? */
+const CFStringRef kCFStreamPropertyShouldCloseNativeSocket  = CFSTR("CFStreamPropertyShouldCloseNativeSocket");
+const CFStringRef kCFStreamPropertySocketSSLContext         = CFSTR("CFStreamPropertySocketSSLContext");
+const CFStringRef kCFStreamPropertySOCKSProxy               = CFSTR("CFStreamPropertySOCKSProxy");
+const CFStringRef kCFStreamSocketSecurityLevelNegotiatedSSL = CFSTR("CFStreamSocketSecurityLevelNegotiatedSSL");
 
 /* CFUtilities.h */
-CF_EXPORT const CFStringRef _kCFSystemVersionBuildVersionKey              = CFSTR("CFSystemVersionBuildVersion");
-CF_EXPORT const CFStringRef _kCFSystemVersionProductNameKey               = CFSTR("CFSystemVersionProductName");
-CF_EXPORT const CFStringRef _kCFSystemVersionProductUserVisibleVersionKey = CFSTR("CFSystemVersionProductUserVisibleVersion");
-CF_EXPORT const CFStringRef _kCFSystemVersionProductVersionKey            = CFSTR("CFSystemVersionProductVersion");
+const CFStringRef _kCFSystemVersionBuildVersionKey              = CFSTR("CFSystemVersionBuildVersion");
+const CFStringRef _kCFSystemVersionProductNameKey               = CFSTR("CFSystemVersionProductName");
+const CFStringRef _kCFSystemVersionProductUserVisibleVersionKey = CFSTR("CFSystemVersionProductUserVisibleVersion");
+const CFStringRef _kCFSystemVersionProductVersionKey            = CFSTR("CFSystemVersionProductVersion");
 
 /* CFUserNotification.h */
-CF_EXPORT const CFStringRef kCFUserNotificationAlertHeaderKey          = CFSTR("CFUserNotificationAlertHeader");
-CF_EXPORT const CFStringRef kCFUserNotificationAlertMessageKey         = CFSTR("CFUserNotificationAlertMessage");
-CF_EXPORT const CFStringRef kCFUserNotificationAlternateButtonTitleKey = CFSTR("CFUserNotificationAlternateButtonTitle");
-CF_EXPORT const CFStringRef kCFUserNotificationCheckBoxTitlesKey       = CFSTR("CFUserNotificationCheckBoxTitles");
-CF_EXPORT const CFStringRef kCFUserNotificationDefaultButtonTitleKey   = CFSTR("CFUserNotificationDefaultButtonTitle");
-CF_EXPORT const CFStringRef kCFUserNotificationIconURLKey              = CFSTR("CFUserNotificationIconURL");
-CF_EXPORT const CFStringRef kCFUserNotificationOtherButtonTitleKey     = CFSTR("CFUserNotificationOtherButtonTitle");
-CF_EXPORT const CFStringRef kCFUserNotificationTextFieldTitlesKey      = CFSTR("CFUserNotificationTextFieldTitles");
-CF_EXPORT const CFStringRef kCFUserNotificationTextFieldValuesKey      = CFSTR("CFUserNotificationTextFieldValues");
+const CFStringRef kCFUserNotificationAlertHeaderKey          = CFSTR("CFUserNotificationAlertHeader");
+const CFStringRef kCFUserNotificationAlertMessageKey         = CFSTR("CFUserNotificationAlertMessage");
+const CFStringRef kCFUserNotificationAlternateButtonTitleKey = CFSTR("CFUserNotificationAlternateButtonTitle");
+const CFStringRef kCFUserNotificationCheckBoxTitlesKey       = CFSTR("CFUserNotificationCheckBoxTitles");
+const CFStringRef kCFUserNotificationDefaultButtonTitleKey   = CFSTR("CFUserNotificationDefaultButtonTitle");
+const CFStringRef kCFUserNotificationIconURLKey              = CFSTR("CFUserNotificationIconURL");
+const CFStringRef kCFUserNotificationOtherButtonTitleKey     = CFSTR("CFUserNotificationOtherButtonTitle");
+const CFStringRef kCFUserNotificationTextFieldTitlesKey      = CFSTR("CFUserNotificationTextFieldTitles");
+const CFStringRef kCFUserNotificationTextFieldValuesKey      = CFSTR("CFUserNotificationTextFieldValues");
 
 /* WebServices? */
-CF_EXPORT const CFStringRef kCFWebServicesProviderDefaultDisplayNameKey = CFSTR("CFWebServicesProviderDefaultDisplayName");
-CF_EXPORT const CFStringRef kCFWebServicesTypeWebSearch                 = CFSTR("CFWebServicesTypeWebSearch");
+const CFStringRef kCFWebServicesProviderDefaultDisplayNameKey = CFSTR("CFWebServicesProviderDefaultDisplayName");
+const CFStringRef kCFWebServicesTypeWebSearch                 = CFSTR("CFWebServicesTypeWebSearch");
+const CFStringRef kCFWebServicesProviderIdentifierKey         = CFSTR("CFWebServicesProviderIdentifier");
