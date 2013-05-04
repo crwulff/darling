@@ -3,12 +3,17 @@
 
 extern "C" {
 
+extern const SecAsn1Template kSecAsn1AlgorithmIDTemplate[];
 extern const SecAsn1Template kSecAsn1AnyTemplate[];
 extern const SecAsn1Template kSecAsn1BitStringTemplate[];
 extern const SecAsn1Template kSecAsn1BMPStringTemplate[];
 extern const SecAsn1Template kSecAsn1BooleanTemplate[];
+extern const SecAsn1Template kSecAsn1CertRequestTemplate[];
+extern const SecAsn1Template kSecAsn1CRLDistributionPointsTemplate[];
+extern const SecAsn1Template kSecAsn1DistPointFullNameTemplate[];
 extern const SecAsn1Template kSecAsn1EnumeratedTemplate[];
 extern const SecAsn1Template kSecAsn1GeneralizedTimeTemplate[];
+extern const SecAsn1Template kSecAsn1GeneralNameTemplate[];
 extern const SecAsn1Template kSecAsn1IA5StringTemplate[];
 extern const SecAsn1Template kSecAsn1IntegerTemplate[];
 extern const SecAsn1Template kSecAsn1UnsignedIntegerTemplate[];
@@ -76,5 +81,6 @@ extern const SecAsn1Template kSecAsn1SetOfUTCTimeTemplate[];
 extern const SecAsn1Template kSecAsn1SetOfUTF8StringTemplate[];
 extern const SecAsn1Template kSecAsn1SetOfVisibleStringTemplate[];
 extern const SecAsn1Template kSecAsn1SkipTemplate[];
+extern const SecAsn1Template kSecAsn1SubjectPublicKeyInfoTemplate[];
 
 }

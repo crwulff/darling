@@ -1,12 +1,17 @@
 
 #include <Security/SecAsn1Templates.h>
 
+const SecAsn1Template kSecAsn1AlgorithmIDTemplate[] = {};
 const SecAsn1Template kSecAsn1AnyTemplate[] = {};
 const SecAsn1Template kSecAsn1BitStringTemplate[] = {};
 const SecAsn1Template kSecAsn1BMPStringTemplate[] = {};
 const SecAsn1Template kSecAsn1BooleanTemplate[] = {};
+const SecAsn1Template kSecAsn1CertRequestTemplate[] = {};
+const SecAsn1Template kSecAsn1CRLDistributionPointsTemplate[] = {};
+const SecAsn1Template kSecAsn1DistPointFullNameTemplate[] = {};
 const SecAsn1Template kSecAsn1EnumeratedTemplate[] = {};
 const SecAsn1Template kSecAsn1GeneralizedTimeTemplate[] = {};
+const SecAsn1Template kSecAsn1GeneralNameTemplate[] = {};
 const SecAsn1Template kSecAsn1IA5StringTemplate[] = {};
 const SecAsn1Template kSecAsn1IntegerTemplate[] = {};
 const SecAsn1Template kSecAsn1UnsignedIntegerTemplate[] = {};
@@ -74,4 +79,6 @@ const SecAsn1Template kSecAsn1SetOfUTCTimeTemplate[] = {};
 const SecAsn1Template kSecAsn1SetOfUTF8StringTemplate[] = {};
 const SecAsn1Template kSecAsn1SetOfVisibleStringTemplate[] = {};
 const SecAsn1Template kSecAsn1SkipTemplate[] = {};
+const SecAsn1Template kSecAsn1SubjectPublicKeyInfoTemplate[] = {};
+
 
