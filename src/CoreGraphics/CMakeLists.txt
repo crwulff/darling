@@ -28,7 +28,8 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_library(CoreGraphics SHARED ${CoreGraphics_SRCS})
-target_link_libraries(CoreGraphics -lopal -lgnustep-corebase -lX11 -lXrandr)
+target_link_libraries(CoreGraphics -Wl,--no-as-needed -l:libopal.so.0
+	-lgnustep-corebase -lX11 -lXrandr Security)
 
 install(TARGETS CoreGraphics DESTINATION "lib${SUFFIX}/darling")
 

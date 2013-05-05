@@ -25,7 +25,9 @@ set(AppKit_SRCS
 )
 
 add_library(AppKit SHARED ${AppKit_SRCS})
-target_link_libraries(AppKit -Wl,--no-as-needed CoreImage Security)
+target_link_libraries(AppKit -Wl,--no-as-needed CoreFoundation
+	CoreImage # via QuartzCore
+	ApplicationServices)
 SET_TARGET_PROPERTIES(AppKit PROPERTIES LINKER_LANGUAGE C)
 
 install(TARGETS AppKit DESTINATION "lib${SUFFIX}/darling")

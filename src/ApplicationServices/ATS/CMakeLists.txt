@@ -19,7 +19,7 @@ set(ATS_SRCS
 )
 
 add_library(ATS SHARED ${ATS_SRCS})
-target_link_libraries(ATS -Wl,--no-as-needed libFontRegistry)
+target_link_libraries(ATS -Wl,--no-as-needed libFontRegistry CoreGraphics)
 
 add_subdirectory(libFontRegistry)
 

@@ -23,7 +23,8 @@ set(WebKit_SRCS
 )
 
 add_library(WebKit SHARED ${WebKit_SRCS})
-target_link_libraries(WebKit -Wl,--no-as-needed -lwebkitgtk-3.0)
+target_link_libraries(WebKit -Wl,--no-as-needed -lwebkitgtk-3.0 Cocoa AppKit
+	CoreFoundation)
 
 install(TARGETS WebKit DESTINATION "lib${SUFFIX}/darling")
 

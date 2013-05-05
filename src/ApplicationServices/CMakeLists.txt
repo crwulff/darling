@@ -19,7 +19,8 @@ set(ApplicationServices_SRCS
 )
 
 add_library(ApplicationServices SHARED ${ApplicationServices_SRCS})
-target_link_libraries(ApplicationServices -Wl,--no-as-needed ATS)
+target_link_libraries(ApplicationServices -Wl,--no-as-needed CoreGraphics ATS
+	ColorSync)
 
 add_subdirectory(ATS)
 
