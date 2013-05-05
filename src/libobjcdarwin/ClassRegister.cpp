@@ -1,4 +1,3 @@
-#include "objc_config.h"
 #include "ClassRegister.h"
 #include "../dyld/public.h"
 #include "../util/trace.h"
@@ -14,8 +13,6 @@
 #	include "new/category.h"
 #endif
 #include "common/selector.h"
-#include "common/cfstring.h"
-#include "common/method.h"
 #include <map>
 #include <queue>
 
@@ -86,7 +83,6 @@ void ProcessImageLoad(uint32_t image_index)
 #endif
 
 	UpdateSelectors(mh, slide);
-	UpdateCFStrings(mh);
 
 	static SEL selInit = sel_getUid("load");
 	while (!g_pendingInitClasses.empty())

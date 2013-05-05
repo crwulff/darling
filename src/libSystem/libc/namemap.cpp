@@ -16,69 +16,70 @@ static const char* g_directmap =
 #include "namemap.lst"
 ;
 
+static std::map<std::string,std::string>* g_nameMap;
+
 static bool NameTranslator(char* symName);
 
-class NameMap : public std::map<std::string,std::string> 
+__attribute__((constructor))
+	static void initTranslation()
 {
-	public:
-		NameMap()
-		{
-			std::istringstream istr(g_directmap);
-			std::string line;
+	std::istringstream istr(g_directmap);
+	std::string line;
 
-			while (std::getline(istr, line))
-			{
-				if (line.empty() || line[0] == '#')
-					continue;
+	g_nameMap = new std::map<std::string,std::string>;
+
+	while (std::getline(istr, line))
+	{
+		if (line.empty() || line[0] == '#')
+			continue;
 		
-				std::vector<std::string> segs = string_explode(line, ';');
-				if (segs.size() < 2)
-					continue;
+		std::vector<std::string> segs = string_explode(line, ';');
+		if (segs.size() < 2)
+			continue;
 
-				if (segs[0].compare(0, 3, "32!") == 0)
-				{
-#ifdef __x86_64__
-					continue;
-#else
-					segs[0] = segs[0].substr(3);
-#endif
-				}
-
-				if (segs[0].compare(0, 3, "64!") == 0)
-				{
-#ifdef __i386__
-					continue;
-#else
-					segs[0] = segs[0].substr(3);
-#endif
-				}
-
-				// std::cout << segs[0] << " -> " << segs[1] << std::endl;
-				(*this)[segs[0]] = segs[1];
-			}
-
-			Darling::registerDlsymHook(NameTranslator);
-		}
-
-		~NameMap()
+		if (segs[0].compare(0, 3, "32!") == 0)
 		{
-			Darling::deregisterDlsymHook(NameTranslator);
+#ifdef __x86_64__
+			continue;
+#else
+			segs[0] = segs[0].substr(3);
+#endif
 		}
-};
 
-static NameMap g_nameMap;
+		if (segs[0].compare(0, 3, "64!") == 0)
+		{
+#ifdef __i386__
+			continue;
+#else
+			segs[0] = segs[0].substr(3);
+#endif
+		}
+
+		// std::cout << segs[0] << " -> " << segs[1] << std::endl;
+		(*g_nameMap)[segs[0]] = segs[1];
+	}
+
+	Darling::registerDlsymHook(NameTranslator);
+}
+
+__attribute__((destructor))
+	static void exitTranslation()
+{
+	Darling::deregisterDlsymHook(NameTranslator);
+	delete g_nameMap;
+}
 
 bool NameTranslator(char* symName)
 {
-	auto it = g_nameMap.find(symName);
-	if (it != g_nameMap.end())
+	auto it = g_nameMap->find(symName);
+	if (it != g_nameMap->end())
 	{
 		strcpy(symName, it->second.c_str());
 		return true;
 	}
 	
-	it = g_nameMap.find(std::string("__darwin_")+symName);
-	if (it != g_nameMap.end())
+	it = g_nameMap->find(std::string("__darwin_")+symName);
+	if (it != g_nameMap->end())
 	{
 		strcpy(symName, it->second.c_str());
 		return true;

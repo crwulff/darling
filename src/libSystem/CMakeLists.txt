@@ -111,7 +111,7 @@ set(machkern_SRCS
 add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS}
 	${machkern_SRCS} ${asl_SRCS} keymgr/keymgr.c)
 # -luuid to make uuid_ functions available for Darwin apps
-target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd -l:libobjc.so.4 -lcrypto)
+target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
 add_dependencies(System.B.dylib mach-o)
 
 install(TARGETS System.B.dylib DESTINATION "lib${SUFFIX}/darling")
