@@ -139,7 +139,7 @@ static void findSearchpathsWildcard(std::string ldconfig_file_pattern)
 
 void Darling::initLD()
 {
-	int rv = regcomp(&g_reFrameworkPath, "/System/Library/Frameworks/([a-zA-Z0-9\\.]+)/Versions/([a-zA-Z0-9\\.]+)/.*", REG_EXTENDED);
+	int rv = regcomp(&g_reFrameworkPath, "/System/Library/.*Frameworks/([a-zA-Z0-9\\.]+)/Versions/([a-zA-Z0-9\\.]+)/.*", REG_EXTENDED);
 	assert(rv == 0);
 	
 	try
