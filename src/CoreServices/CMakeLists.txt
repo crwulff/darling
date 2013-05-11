@@ -43,5 +43,7 @@ add_library(CoreServices SHARED ${CoreServices_SRCS})
 target_link_libraries(CoreServices -Wl,--no-as-needed -licuuc System.B.dylib util
 	-lgnustep-corebase ColorSync LaunchServices Metadata)
 
+add_subdirectory(CarbonCore)
+
 install(TARGETS CoreServices DESTINATION "lib${SUFFIX}/darling")
 
