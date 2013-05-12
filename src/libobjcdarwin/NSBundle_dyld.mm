@@ -21,8 +21,30 @@ void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel);
 
 id GetBundle(const char* filename)
 {
-	NSString *filepath = [[NSString alloc] initWithCString:filename];
-	filepath = [filepath stringByDeletingLastPathComponent];
+	std::string path(filename);
+	size_t pos;
+	if ((pos = path.rfind(".framework/")) != std::string::npos)
+	{
+		// Framework bundle
+		path.resize(pos+10);
+	}
+	else if ((pos = path.rfind("Contents/")) != std::string::npos)
+	{
+		// Bundle with Contents
+		path.resize(pos+8);
+	}
+	else if ((pos = path.rfind(".app/")) != std::string::npos)
+	{
+		// App bundle
+		path.resize(pos+4);
+	}
+	else if ((pos = path.rfind("/")) != std::string::npos)
+	{
+		// None of the above so just strip the filename portion
+		path.resize(pos+4);
+	}
+
+	NSString *filepath = [[NSString alloc] initWithCString:path.c_str()];
 	LOG << "Getting bundle for path " << [filepath UTF8String] << std::endl;
 	NSBundle *bundle = [[NSBundle alloc] initWithPath: filepath];
 	LOG << "Bundle is " << bundle << std::endl;
@@ -44,6 +66,7 @@ static void myinit()
 	
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(mainBundle), @selector(x_mainBundle));
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(bundleForClass:), @selector(x_bundleForClass:));
+	MethodSwizzle(objc_getClass("NSBundle"), @selector(executablePath), @selector(x_executablePath));
 	
 	// Many OS X apps assume that there is a "default" autorelease pool provided
 	g_pool = [[NSAutoreleasePool alloc] init];
@@ -111,6 +134,9 @@ __attribute__((destructor)) static void myexit()
 
 		_mainBundle = [self alloc];
 		_mainBundle = [_mainBundle initWithPath:[NSString stringWithUTF8String:path.c_str()]];
+
+		// HACK (combined with mods in gnustep-base) to force the _mainBundle static over there to also be updated
+		[NSBundle allBundles];
 	}
 
 	return _mainBundle;
@@ -127,7 +153,8 @@ __attribute__((destructor)) static void myexit()
 	}
 	else
 	{
-		bundle = [super gnu_bundleForClass:aClass];
+		// Method swapped - call original
+		bundle = [self x_bundleForClass:aClass];
 	}
 	return bundle;
 }
@@ -136,6 +163,19 @@ __attribute__((destructor)) static void myexit()
 {
 	NSValue *value = [NSValue valueWithPointer: (void*)cls];
 	[self->_bundleClasses addObject: value];
+}
+
+- (NSString *) x_executablePath
+{
+	if (self == _mainBundle)
+	{
+		return [NSString stringWithUTF8String: g_darwin_executable_path];
+	}
+	else
+	{
+		// Implementation swapped - call original
+		return [self x_executablePath];
+	}
 }
 
 @end
