@@ -216,6 +216,21 @@ void OSSpinLockUnlock(OSSpinLock *lock)
 	assert(success); // Will fail if spinlock wasn't locked
 }
 
+bool _spin_lock_try(OSSpinLock *lock)
+{
+	return OSSpinLockTry(lock);
+}
+
+void _spin_lock(OSSpinLock *lock)
+{
+	OSSpinLockLock(lock);
+}
+
+void _spin_unlock(OSSpinLock *lock)
+{
+	OSSpinLockUnlock(lock);
+}
+
 // http://i.stack.imgur.com/FSBA3.png
 void OSAtomicEnqueue(OSQueueHead *list, void *_new, size_t offset)
 {

@@ -98,6 +98,12 @@ void OSSpinLockLock(OSSpinLock *lock);
 
 void OSSpinLockUnlock(OSSpinLock *lock);
 
+bool _spin_lock_try(OSSpinLock *lock);
+
+void _spin_lock(OSSpinLock *lock);
+
+void _spin_unlock(OSSpinLock *lock);
+
 void OSAtomicEnqueue(struct OSQueueHead *list, void *_new, size_t offset);
 
 void* OSAtomicDequeue(struct OSQueueHead *list, size_t offset);
