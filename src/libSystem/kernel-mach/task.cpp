@@ -10,6 +10,13 @@
 
 darwin_task_t mach_task_self_ = new darwin_task(::getpid());
 
+mach_port_t bootstrap_port = 0;
+
+kern_return_t mach_port_allocate(ipc_space_t task, mach_port_right_t right, mach_port_name_t *name)
+{
+	return KERN_SUCCESS;
+}
+
 kern_return_t mach_port_deallocate(darwin_task_t task, void* port)
 {
 	free(port);

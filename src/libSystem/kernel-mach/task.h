@@ -34,6 +34,7 @@ extern "C"
 #endif
 	extern darwin_task_t mach_task_self_;
 	inline darwin_task_t mach_task_self() { return mach_task_self_; }
+	kern_return_t mach_port_allocate(ipc_space_t task, mach_port_right_t right, mach_port_name_t *name);
 	kern_return_t mach_port_deallocate(darwin_task_t task, void* port);
 	kern_return_t pid_for_task(mach_port_name_t t, int *pid);
 	kern_return_t mach_port_mod_refs(ipc_space_t task, mach_port_name_t name, mach_port_right_t right, mach_port_delta_t delta);
