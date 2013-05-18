@@ -41,7 +41,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_library(CoreServices SHARED ${CoreServices_SRCS})
 target_link_libraries(CoreServices -Wl,--no-as-needed -licuuc System.B.dylib util
-	-lgnustep-corebase ColorSync LaunchServices Metadata)
+	-lgnustep-corebase ColorSync LaunchServices Metadata CarbonCore)
 
 add_subdirectory(CarbonCore)
 
