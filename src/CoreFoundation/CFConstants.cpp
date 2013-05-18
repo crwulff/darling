@@ -44,22 +44,6 @@ const CFStringRef kCFErrorURLKey                         = CFSTR("CFErrorURL");
 const CFStringRef kCFErrorFilePathKey                    = CFSTR("CFErrorFilePath");
 
 
-/* CFPreferences.h */
-const CFStringRef kCFPreferencesAnyApplication     = CFSTR("CFPreferencesAnyApplication");
-const CFStringRef kCFPreferencesCurrentApplication = CFSTR("CFPreferencesCurrentApplication");
-const CFStringRef kCFPreferencesAnyHost            = CFSTR("CFPreferencesAnyHost");
-const CFStringRef kCFPreferencesCurrentHost        = CFSTR("CFPreferencesCurrentHost");
-const CFStringRef kCFPreferencesAnyUser            = CFSTR("CFPreferencesAnyUser");
-const CFStringRef kCFPreferencesCurrentUser        = CFSTR("CFPreferencesCurrentUser");
-
-/* CFPreferences Private? */
-const CFStringRef kCFManagedPreferencesMCXObjectName             = CFSTR("CFManagedPreferencesMCXObjectName");
-const CFStringRef kCFManagedPreferencesMCXNotificationName       = CFSTR("CFManagedPreferencesMCXNotificationName");
-const CFStringRef kCFPreferencesDidChangeNotificationName        = CFSTR("CFPreferencesDidChangeNotificationName");
-const CFStringRef kCFPreferencesWebServicesProviderTypeMap       = CFSTR("CFPreferencesWebServicesProviderTypeMap");
-const CFStringRef kCFPreferencesWebServicesProviderTypeWebSearch = CFSTR("CFPreferencesWebServicesProviderTypeWebSearch");
-const CFStringRef kCFPreferencesDidChangeObject                  = CFSTR("CFPreferencesDidChangeObject");
-
 /* CFURL Private? */
 const CFStringRef _kCFURLApplicationHighResolutionModeIsMagnifiedKey       = CFSTR("NSURLApplicationHighResolutionModeIsMagnifiedKey");
 const CFStringRef kCFURLBookmarkOriginalPathKey                            = CFSTR("NSURLBookmarkOriginalPathKey");

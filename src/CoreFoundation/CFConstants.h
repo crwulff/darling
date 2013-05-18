@@ -43,19 +43,6 @@ CF_EXPORT const CFStringRef kCFErrorUnderlyingErrorKey;
 CF_EXPORT const CFStringRef kCFErrorURLKey;
 CF_EXPORT const CFStringRef kCFErrorFilePathKey;
 
-/* CFPreferences.h */
-CF_EXPORT const CFStringRef kCFPreferencesAnyApplication;
-CF_EXPORT const CFStringRef kCFPreferencesCurrentApplication;
-CF_EXPORT const CFStringRef kCFPreferencesAnyHost;
-CF_EXPORT const CFStringRef kCFPreferencesCurrentHost;
-CF_EXPORT const CFStringRef kCFPreferencesAnyUser;
-CF_EXPORT const CFStringRef kCFPreferencesCurrentUser;
-
-/* CFPreferences Private? */
-CF_EXPORT const CFStringRef kCFManagedPreferencesMCXObjectName;
-CF_EXPORT const CFStringRef kCFPreferencesDidChangeNotificationName;
-CF_EXPORT const CFStringRef kCFPreferencesDidChangeObject;
-
 /* CFURL Private? */
 CF_EXPORT const CFStringRef _kCFURLApplicationHighResolutionModeIsMagnifiedKey;
 CF_EXPORT const CFStringRef kCFURLBookmarkOriginalPathKey;
