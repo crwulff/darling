@@ -446,3 +446,9 @@ OSStatus FSFindFolder(long vRefNum, OSType folderType, Boolean createFolder, FSR
 	else
 		return unimpErr;
 }
+
+int _FSGetStrippedPath(char *str1, char *str2)
+{
+	printf("_FSGetStrippedPath(%p, %p) - Not implemented\n", str1, str2);
+	return 0;
+}

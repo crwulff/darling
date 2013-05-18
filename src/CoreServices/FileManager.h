@@ -156,6 +156,8 @@ OSStatus FSFindFolder(long vRefNum, OSType folderType, Boolean createFolder, FSR
 
 OSStatus FSGetCatalogInfo(const FSRef* ref, uint32_t infoBits, FSCatalogInfo* infoOut, HFSUniStr255* nameOut, FSSpecPtr fsspec, FSRef* parentDir);
 
+int _FSGetStrippedPath(char *str1, char *str2);
+
 }
 
 #endif
