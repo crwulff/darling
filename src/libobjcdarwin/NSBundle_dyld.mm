@@ -3,6 +3,7 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSFileManager.h>
 #include <string>
 #include <cstring>
 #include <cstdio>
@@ -28,15 +29,15 @@ id GetBundle(const char* filename)
 		// Framework bundle
 		path.resize(pos+10);
 	}
-	else if ((pos = path.rfind("Contents/")) != std::string::npos)
-	{
-		// Bundle with Contents
-		path.resize(pos+8);
-	}
 	else if ((pos = path.rfind(".app/")) != std::string::npos)
 	{
 		// App bundle
 		path.resize(pos+4);
+	}
+	else if ((pos = path.rfind("Contents/")) != std::string::npos)
+	{
+		// Bundle with Contents (strip to before Contents/)
+		path.resize(pos-1);
 	}
 	else if ((pos = path.rfind("/")) != std::string::npos)
 	{
@@ -120,13 +121,11 @@ __attribute__((destructor)) static void myexit()
 		
 		if ((pos = path.rfind("Contents/")) != std::string::npos)
 		{
-			path.resize(pos+8);
+			// Strip to be before Contents
+			path.resize(pos-1);
 		}
 		else if ((pos = path.rfind(".app/")) != std::string::npos)
 		{
-			// "path.endsWith()"
-			// if (path.compare(path.size()-7, 7, "/MacOS/") == 0)
-			// 	path.resize(path.size() - 7);
 			path.resize(pos+4);
 		}
 
@@ -174,7 +173,14 @@ __attribute__((destructor)) static void myexit()
 	else
 	{
 		// Implementation swapped - call original
-		return [self x_executablePath];
+		NSString * path = [self x_executablePath];
+		NSString * macPath = [path stringByAppendingPathComponent: @"MacOs"];
+		if (nil != [[NSFileManager defaultManager] directoryContentsAtPath: macPath])
+		{
+			path = macPath;
+		}
+		
+		return path;
 	}
 }
 
