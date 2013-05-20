@@ -8,9 +8,11 @@
 
 +(NSBundle*) x_bundleForClass: (Class) aClass;
 
+-(void) addClass : (Class) cls;
+
 -(NSString*) x_executablePath;
 
--(void) addClass : (Class) cls;
+-(BOOL) x_load;
 
 @end
 

@@ -21,7 +21,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #define DARWIN_LD_H
 #include <dlfcn.h>
 #include <unordered_map>
-//#include "MachOLoader.h"
+#include "MachO.h"
 #include "ELFBlock.h"
 
 #define DARWIN_RTLD_LAZY		0x1

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <map>
 #include "../util/log.h"
+#include "../dyld/ld.h"
 
 extern char g_darwin_executable_path[PATH_MAX];
 extern int g_argc asm("NXArgc");
@@ -68,6 +69,7 @@ static void myinit()
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(mainBundle), @selector(x_mainBundle));
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(bundleForClass:), @selector(x_bundleForClass:));
 	MethodSwizzle(objc_getClass("NSBundle"), @selector(executablePath), @selector(x_executablePath));
+	MethodSwizzle(objc_getClass("NSBundle"), @selector(load), @selector(x_load));
 	
 	// Many OS X apps assume that there is a "default" autorelease pool provided
 	g_pool = [[NSAutoreleasePool alloc] init];
@@ -181,6 +183,27 @@ __attribute__((destructor)) static void myexit()
 		}
 		
 		return path;
+	}
+}
+
+-(BOOL) x_load
+{
+	if (_codeLoaded)
+	{
+		return YES;
+	}
+
+	// Check the executable type to see if it is native or Mach-o
+	NSString *exePath = [self executablePath];
+	if (NULL != __darwin_dlopen([exePath UTF8String], 0))
+	{
+		_codeLoaded = YES;
+		return YES;
+	}
+	else
+	{
+		// darwin load failed so try the original native one
+		return [self x_load];
 	}
 }
 
