@@ -24,6 +24,7 @@ set(AppKit_SRCS
 	NSKeyValueBinding.m
 	NSLayoutConstraint.m
 	NSPasteboard.m
+	NSTableCellView.m
 )
 
 add_library(AppKit SHARED ${AppKit_SRCS})
