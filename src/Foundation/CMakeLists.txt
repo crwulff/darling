@@ -17,6 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fblocks")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../CoreServices)
 
 set(Foundation_SRCS
 	NSAppleEventManager.m

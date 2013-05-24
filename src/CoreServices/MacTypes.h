@@ -43,5 +43,15 @@ typedef char** Handle;
 
 typedef int32_t OSStatus;
 
+typedef void *PRefCon;
+#if __LP64__
+typedef void *URefCon;
+typedef void *SRefCon;
+#else
+typedef UInt32 URefCon;
+typedef SInt32 SRefCon;
+#endif  /* __LP64__ */
+
+
 #endif
 

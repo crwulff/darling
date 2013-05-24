@@ -41,9 +41,10 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_library(CoreServices SHARED ${CoreServices_SRCS})
 target_link_libraries(CoreServices -Wl,--no-as-needed -licuuc System.B.dylib util
-	-lgnustep-corebase ColorSync LaunchServices Metadata CarbonCore)
+	-lgnustep-corebase ColorSync LaunchServices Metadata CarbonCore AE)
 
 add_subdirectory(CarbonCore)
+add_subdirectory(AE)
 
 install(TARGETS CoreServices DESTINATION "lib${SUFFIX}/darling")
 
