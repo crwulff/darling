@@ -11,3 +11,15 @@ const CFStringRef kLSItemRoleHandlerDisplayName = CFSTR("LSItemRoleHandlerDispla
 const CFStringRef kLSItemIsInvisible            = CFSTR("LSItemIsInvisible");
 const CFStringRef kLSItemExtensionIsHidden      = CFSTR("LSItemExtensionIsHidden");
 const CFStringRef kLSItemQuarantineProperties   = CFSTR("LSItemQuarantineProperties");
+
+OSStatus LSSetDefaultHandlerForURLScheme(CFStringRef inURLScheme, CFStringRef inHandlerBundleID)
+{
+  // TODO
+  return 0;
+}
+
+CFArrayRef LSCopyApplicationURLsForURL(CFURLRef inURL, LSRolesMask inRoleMask)
+{
+  // TODO
+  return NULL;
+}
