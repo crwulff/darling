@@ -22,6 +22,7 @@ set(AppKit_SRCS
 	NSDocumentController.m
 	NSImage.m
 	NSKeyValueBinding.m
+	NSLayoutConstraint.m
 	NSPasteboard.m
 )
 
