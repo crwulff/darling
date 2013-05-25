@@ -30,6 +30,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <stddef.h>
 #include "../util/log.h"
 #include "../util/leb.h"
+#include "GDBInterface.h"
 
 extern FileMap g_file_map;
 extern "C" char* dyld_getDarwinExecutablePath();
@@ -60,6 +61,13 @@ const char* _dyld_get_image_name(uint32_t image_index)
 void _dyld_register_method_symbol(uint32_t image_index, const char* name, void* addr)
 {
 	g_file_map.images().at(image_index)->elf->addSymbol(name, addr);
+}
+
+void _dyld_finalize_symbols(uint32_t image_index)
+{
+#ifdef DEBUG
+	GDBInterface::addELF(g_file_map.images().at(image_index)->elf);
+#endif
 }
 
 char* getsectdata(const struct mach_header* header, const char* segname, const char* sectname, unsigned long* size)

@@ -41,6 +41,7 @@ const struct mach_header* _dyld_get_image_header(uint32_t image_index);
 intptr_t _dyld_get_image_vmaddr_slide(uint32_t image_index);
 const char* _dyld_get_image_name(uint32_t image_index);
 void _dyld_register_method_symbol(uint32_t image_index, const char* name, void* addr);
+void _dyld_finalize_symbols(uint32_t image_index);
 
 char* getsectdata(const struct mach_header* header, const char* segname, const char* sectname, unsigned long* size);
 

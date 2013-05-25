@@ -678,7 +678,24 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	loadInitFuncs(mach, slide);
 
 	loadExports(mach, slide, exports, elf);
-	
+
+	// Add symbols to debug info
+	if (elf)
+	{
+		for (const MachO::Symbol &sym : mach.symbols())
+		{
+			if (sym.name[0] == '_' && sym.name[1] == '_')
+			{
+				// Mangled names starting with __ aren't understood by gdb and need one _
+				elf->addSymbol(&sym.name[1], (void*)(sym.addr + slide));
+			}
+			else
+			{
+				elf->addSymbol(sym.name, (void*)(sym.addr + slide));
+			}
+		}
+	}
+
 	uint32_t image_index = 0;
 	img = g_file_map.add(mach, slide, base, bindLazy, elf, image_index);
 	

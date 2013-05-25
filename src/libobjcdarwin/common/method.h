@@ -20,7 +20,13 @@ template<typename ListType> void ConvertMethodListGen(Class c, const ListType* l
 		IMP imp = reinterpret_cast<IMP>(m->impl);
 
 		LOG << "Method: selName: " << m->selName << "; types: " << m->types << "; impl: " << m->impl << std::endl;
-		_dyld_register_method_symbol(image_index, m->selName, m->impl);
+		std::string sym = (isMeta) ? "+" : "-";
+		sym += "[";
+		sym += class_getName(c);
+		sym += " ";
+		sym += m->selName;
+		sym += "]";
+		_dyld_register_method_symbol(image_index, sym.c_str(), m->impl);
 
 		SEL sel = sel_registerTypedName_np(m->selName, m->types);
 		class_addMethod(c, sel, imp, m->types);

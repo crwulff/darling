@@ -92,6 +92,7 @@ void ProcessImageLoad(uint32_t image_index)
 		pair.second(reinterpret_cast<objc_object*>(pair.first), selInit);
 	}
 
+	_dyld_finalize_symbols(image_index);
 	LOG << "ObjC ProcessImageLoad done @" << mh << std::endl;
 }
 

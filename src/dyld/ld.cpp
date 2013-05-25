@@ -467,8 +467,6 @@ void* attemptDlopen(const char* filename, int flag)
 
 #ifdef DEBUG
 				g_loader->load(*machO, name, lib->exports, nobind, lazy, &lib->elf);
-
-				GDBInterface::addELF(&lib->elf);
 #else
 				g_loader->load(*machO, name, lib->exports, nobind, lazy);
 #endif
@@ -478,7 +476,7 @@ void* attemptDlopen(const char* filename, int flag)
 					char* apple[2] = { g_darwin_executable_path, 0 };
 					g_loader->runPendingInitFuncs(g_argc, g_argv, environ, apple);
 				}
-				
+
 				return lib;
 			}
 			catch (const std::exception& e)
