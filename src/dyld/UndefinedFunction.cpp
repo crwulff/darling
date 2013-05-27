@@ -57,9 +57,15 @@ UndefMgr::~UndefMgr()
 
 void* UndefMgr::generateNew(const char* name)
 {
-	if ((strncmp(name, "OBJC_CLASS", 10) == 0) ||
-	    (strncmp(name, "OBJC_METACLASS", 14) == 0))
+	fprintf(stderr, "UndefMgr::generateNew(%s)\n", name);
+	bool isClass = (strncmp(name, "OBJC_CLASS", 10) == 0);
+	bool isMetaClass = (strncmp(name, "OBJC_METACLASS", 14) == 0);
+
+	if (isClass || isMetaClass)
 	{
+		// Strip the OBJC_CLASS_$_ or OBJC_METACLASS_$_
+		name =  &name[(isMetaClass) ? 17 : 13];
+
 		// Objective-C class or metaclass info
 		static std::map<std::string, Class> undefClasses;
 		Class classStub = nullptr;
@@ -74,19 +80,13 @@ void* UndefMgr::generateNew(const char* name)
 			objc_registerClassPair(classStub);
 			for (ClassRegisterHookFunc* func : g_objcClassHooks)
 			{
+				func(object_getClass(reinterpret_cast<id>(classStub)));
 				func(classStub);
 			}
 			undefClasses[name] = classStub;
 		}
 
-		if (strncmp(name, "OBJC_CLASS", 10) == 0)
-		{
-			return classStub;
-		}
-		else
-		{
-			return object_getClass(reinterpret_cast<id>(classStub));
-		}
+		return (isClass) ? classStub : object_getClass(reinterpret_cast<id>(classStub));
 	}
 	else if (strncmp(name, "OBJC_IVAR", 9) == 0)
 	{
@@ -99,7 +99,7 @@ void* UndefMgr::generateNew(const char* name)
 		} objc_ivar;
 
 		objc_ivar *ivarStub = new objc_ivar;
-		ivarStub->name = name;
+		ivarStub->name = &name[12];
 		ivarStub->type = "";
 		ivarStub->offset = 0;
 		return ivarStub;
