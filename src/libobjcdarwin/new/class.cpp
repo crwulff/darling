@@ -12,9 +12,7 @@
 
 extern std::map<const void*,Class> g_classPointers;
 
-extern void BundleAddClass(id bundle, Class cls);
-
-Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index, id bundle)
+Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 {
 	if (nullptr == cls)
 	{
@@ -28,7 +26,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index, id
 		return itClass->second;
 	}
 
-	Class super = RegisterClass(cls->superclass, slide, image_index, bundle);
+	Class super = RegisterClass(cls->superclass, slide, image_index);
 
 	LOG << "...superclass is @" << super << std::endl;
 	if (nullptr != super)
@@ -101,18 +99,14 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index, id
 	g_classPointers[conv] = conv;
 	g_classPointers[meta] = meta;
 
-	if (nullptr != bundle)
-	{
-		BundleAddClass(bundle, conv);
-	}
-
 	return conv;
 }
 
-void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section, uint32_t image_index, id bundle)
+std::vector<const char*> ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char* segment, const char* section, uint32_t image_index)
 {
 	class_t **classes, **classes_end;
 	unsigned long size;
+	std::vector<const char*> classNames;
 
 	classes = reinterpret_cast<class_t**>(
 		getsectdata(mh, segment, section, &size)
@@ -124,12 +118,15 @@ void ProcessClassesNew(const struct mach_header* mh, intptr_t slide, const char*
 
 		while (classes < classes_end)
 		{
-			Class c = RegisterClass(*classes, slide, image_index, bundle);
+			Class c = RegisterClass(*classes, slide, image_index);
+			classNames.push_back(class_getName(c));
 			LOG << "Fixup @" << classes << " " << *classes << " -> " << c <<std::endl;
 			*classes = (class_t*)c;
 
 			classes++;
 		}
 	}
+
+	return classNames;
 }
 

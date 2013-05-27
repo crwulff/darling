@@ -57,7 +57,6 @@ UndefMgr::~UndefMgr()
 
 void* UndefMgr::generateNew(const char* name)
 {
-	fprintf(stderr, "UndefMgr::generateNew(%s)\n", name);
 	bool isClass = (strncmp(name, "OBJC_CLASS", 10) == 0);
 	bool isMetaClass = (strncmp(name, "OBJC_METACLASS", 14) == 0);
 

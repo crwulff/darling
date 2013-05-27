@@ -1,14 +1,10 @@
-#import "NSBundle_dyld.h"
-#import <limits.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSProcessInfo.h>
+#include "NSDarwinBundle.h"
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSFileManager.h>
 #include <string>
-#include <cstring>
-#include <cstdio>
-#include <unistd.h>
 #include <algorithm>
+#include <unistd.h>
 #include <map>
 #include "../util/log.h"
 #include "../dyld/ld.h"
@@ -19,7 +15,7 @@ extern char** g_argv asm("NXArgv");
 static NSBundle* _mainBundle = 0;
 static NSAutoreleasePool* g_pool = 0;
 
-void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel);
+static void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel);
 
 id GetBundle(const char* filename)
 {
@@ -53,39 +49,21 @@ id GetBundle(const char* filename)
 	return bundle;
 }
 
-std::map<Class, NSBundle*> g_bundleMap;
-
-void BundleAddClass(id bundle, Class cls)
-{
-	NSBundle *b = (NSBundle*)bundle;
-	[b addClass: cls];
-	g_bundleMap[cls] = bundle;
-}
-
 static void myinit()
 {
 	LOG << "Swizzling methods in NSBundle\n";
-	
+
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(mainBundle), @selector(x_mainBundle));
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(bundleForClass:), @selector(x_bundleForClass:));
 	MethodSwizzle(objc_getClass("NSBundle"), @selector(executablePath), @selector(x_executablePath));
 	MethodSwizzle(objc_getClass("NSBundle"), @selector(load), @selector(x_load));
-	
+
+	[NSBundle mainBundle];
+
+	GSInitializeProcess(g_argc, g_argv, environ);
+
 	// Many OS X apps assume that there is a "default" autorelease pool provided
 	g_pool = [[NSAutoreleasePool alloc] init];
-	
-	GSInitializeProcess(g_argc, g_argv, environ);
-	
-	/*
-	const char* last = strrchr(g_darwin_executable_path, '/');
-	if (last != 0)
-	{
-		last++;
-		
-		NSString* str = [NSString stringWithUTF8String:last];
-		[[NSProcessInfo processInfo] setProcessName:str];
-	}
-	*/
 }
 
 __attribute__((destructor)) static void myexit()
@@ -94,16 +72,33 @@ __attribute__((destructor)) static void myexit()
 	g_pool = 0;
 }
 
-@implementation NSBundle (NSBundle_dyld)
+
+@implementation NSDarwinBundle
+
++ (long) _loadModuleWithFilename: (NSString*)filename
+                     errorStream: (FILE*)errorStream
+                    loadCallback: (void (*)(Class, struct objc_category *))loadCallback
+                          header: (void**)header
+                   debugFilename: (NSString*)debugFilename
+{
+	const char* path = [filename UTF8String];
+	void* lib = __darwin_dlopen(path, DARWIN_RTLD_LAZY);
+
+	// TODO: report loaded classes via loadCallback
+
+	if (!lib)
+		fprintf(errorStream, "Failed to __darwin_dlopen: %s\n", __darwin_dlerror());
+
+	return lib ? 0 : 1;
+}
+
+@end
+
+@implementation NSBundle (NSBundle_Darling)
 
 +(void) load
 {
 	myinit();
-#if 0
-	LOG << "Swizzling methods in NSBundle\n";
-	RenameSelector([self class], @selector(mainBundle), @selector(gnu_mainBundle));
-	RenameSelector([self class], @selector(x_mainBundle), @selector(mainBundle));
-#endif
 }
 
 +(NSBundle*) x_mainBundle
@@ -120,7 +115,7 @@ __attribute__((destructor)) static void myexit()
 
 		//path.resize(pos+1);
 		//path += "Resources";
-		
+
 		if ((pos = path.rfind("Contents/")) != std::string::npos)
 		{
 			// Strip to be before Contents
@@ -143,29 +138,6 @@ __attribute__((destructor)) static void myexit()
 	return _mainBundle;
 }
 
-+(NSBundle*) x_bundleForClass: (Class) aClass
-{
-	NSBundle *bundle = nullptr;
-
-	auto i = g_bundleMap.find(aClass);
-	if (i != g_bundleMap.end())
-	{
-		bundle = i->second;
-	}
-	else
-	{
-		// Method swapped - call original
-		bundle = [self x_bundleForClass:aClass];
-	}
-	return bundle;
-}
-
--(void) addClass : (Class) cls
-{
-	NSValue *value = [NSValue valueWithPointer: (void*)cls];
-	[self->_bundleClasses addObject: value];
-}
-
 - (NSString *) x_executablePath
 {
 	if (self == _mainBundle)
@@ -181,7 +153,7 @@ __attribute__((destructor)) static void myexit()
 		{
 			path = macPath;
 		}
-		
+
 		return path;
 	}
 }
@@ -219,10 +191,10 @@ struct objc_method
 void MethodSwizzle(Class aClass, SEL orig_sel, SEL alt_sel)
 {
 	Method orig_method, alt_method;
-   
+
 	orig_method = (Method) class_getInstanceMethod(aClass, orig_sel);
 	alt_method = (Method) class_getInstanceMethod(aClass, alt_sel);
-   
+
 	if (orig_method && alt_method)
 	{
 		std::swap(orig_method->types, alt_method->types);

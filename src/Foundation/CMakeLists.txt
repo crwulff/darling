@@ -10,9 +10,9 @@ endif(COMMAND cmake_policy)
 #endif (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 
 #configure_file(config.h.in config.h)
-
-# CMake is broken and uses C++ flags for ObjC
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fblocks")
+add_definitions(-D__STDC_LIMIT_MACROS)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fconstant-string-class=NSConstantString")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -20,13 +20,20 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../CoreServices)
 
 set(Foundation_SRCS
-	NSAppleEventManager.m
-	NSTextCheckingResult.m
-	NSURL.m
+	NameTranslate.cpp
+	NSDarwinBundle.mm
+	NSAppleEventManager.mm
+	NSTextCheckingResult.mm
+	NSURL.mm
 )
 
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")
+#SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--enable-new-dtags")
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE) 
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_library(Foundation SHARED ${Foundation_SRCS})
-target_link_libraries(Foundation -lgnustep-base objc.A.dylib)
+target_link_libraries(Foundation -lgnustep-base)
 
 install(TARGETS Foundation DESTINATION "lib${SUFFIX}/darling")
 

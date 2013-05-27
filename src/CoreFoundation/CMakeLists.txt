@@ -24,6 +24,7 @@ set(CoreFoundation_SRCS
 	CFPreferences.cpp
 	CFUtilities.cpp
 	AppleCFString.mm
+	CFUtilities.cpp
 )
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib${SUFFIX}/darling")

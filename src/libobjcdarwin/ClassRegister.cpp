@@ -15,6 +15,7 @@
 #include "common/selector.h"
 #include <map>
 #include <queue>
+#include "NSDarwinFramework.h"
 
 // Superclass references in Mach-O don't use classref
 // Neither do category class references
@@ -29,6 +30,16 @@ void RegisterNativeClass(void* cls)
 
 	class_getSuperclass(reinterpret_cast<Class>(cls)); // HACK to force the class to be resolved
 	g_classPointers[cls] = reinterpret_cast<Class>(cls);
+}
+
+static void ReplaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace)
+{
+	size_t pos = 0;
+	while ((pos = subject.find(search, pos)) != std::string::npos)
+	{
+		subject.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
 }
 
 // Here we process Mach-O files that have been loaded before this native library
@@ -54,17 +65,18 @@ void ProcessImageLoad(uint32_t image_index)
 	intptr_t slide = _dyld_get_image_vmaddr_slide(image_index);
 	const char *name = _dyld_get_image_name(image_index);
 	unsigned long size;
+	std::vector<const char*> classNames;
+	void* dataPtr = nullptr;
 
 	LOG << "ObjC ProcessImageLoad @" << mh << std::endl;
-
-	id bundle = GetBundle(name);
 
 #ifdef OBJC_ABI_2
 	ProcessProtocolsNew(mh, slide);
 
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, image_index, bundle);
-	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW, image_index, nullptr);
-	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW, image_index, nullptr);
+	classNames = ProcessClassesNew(mh, slide, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, image_index);
+	dataPtr = getsectdata(mh, SEG_OBJC_CLASSLIST_NEW, SECT_OBJC_CLASSLIST_NEW, &size);
+	ProcessClassesNew(mh, slide, SEG_OBJC_CLASSREFS_NEW, SECT_OBJC_CLASSREFS_NEW, image_index);
+	ProcessClassesNew(mh, slide, SEG_OBJC_SUPERREFS_NEW, SECT_OBJC_SUPERREFS_NEW, image_index);
 
 	ProcessCategoriesNew(mh, slide, image_index);
 #else
@@ -77,12 +89,21 @@ void ProcessImageLoad(uint32_t image_index)
 
 	if (modinfo && modinfo->symtab)
 	{
-		ProcessClassesOld(mh, slide, modinfo);
+		classNames = ProcessClassesOld(mh, slide, modinfo);
+		dataPtr = modinfo;
 		ProcessCategoriesOld(mh, slide, modinfo);
 	}
 #endif
 
 	UpdateSelectors(mh, slide);
+
+	// Do this only for dynamic libs (slide > 0)
+	if (!classNames.empty() && slide > 0)
+	{
+		// Generate a NSFramework_XXXX class for GNUstep's NSBundle
+		const char* path = dyld_image_path_containing_address(dataPtr);
+		RegisterFramework(&classNames[0], classNames.size(), path);
+	}
 
 	static SEL selInit = sel_getUid("load");
 	while (!g_pendingInitClasses.empty())

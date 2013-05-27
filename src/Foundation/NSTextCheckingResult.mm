@@ -1,5 +1,5 @@
 
-#include <Foundation/NSString.h>
+#include "NSTextCheckingResult.h"
 
 NSString * const NSTextCheckingNameKey         = @"NSTextCheckingNameKey";
 NSString * const NSTextCheckingJobTitleKey     = @"NSTextCheckingJobTitleKey";

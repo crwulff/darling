@@ -1,5 +1,5 @@
 
-#include <Foundation/NSString.h>
+#include "NSURL.h"
 
 NSString * const NSURLKeysOfUnsetValuesKey                    = @"NSURLKeysOfUnsetValuesKey";
 NSString * const NSURLNameKey                                 = @"NSURLNameKey";

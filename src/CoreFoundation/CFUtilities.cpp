@@ -1,5 +1,5 @@
 
-#include <CoreFoundation/CFUtilities.h>
+#include "CFUtilities.h"
 #include <CoreFoundation/CFString.h>
 
 Boolean _CFExecutableLinkedOnOrAfter(CFSystemVersion version)
@@ -33,11 +33,13 @@ static CFDictionaryRef _CFCopyVersionDictionary(CFStringRef path)
 
 CFDictionaryRef _CFCopySystemVersionDictionary(void)
 {
+  // TODO: Make this a real file installed by Darling and read by _CFCopyVersionDictionary
   return _CFCopyVersionDictionary(CFSTR("/System/Library/CoreServices/SystemVersion.plist"));
 }
 
 CFDictionaryRef _CFCopyServerVersionDictionary(void)
 {
+  // TODO: Make this a real file installed by Darling and read by _CFCopyVersionDictionary
   return _CFCopyVersionDictionary(CFSTR("/System/Library/CoreServices/ServerVersion.plist"));
 }
 
