@@ -18,6 +18,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
 set(Security_SRCS
+	Authorization.cpp
 	oidcert.cpp
 	oidsalg.cpp
 	oidsattr.cpp
