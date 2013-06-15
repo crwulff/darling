@@ -1,4 +1,7 @@
 
+#ifndef _CAAtoms_H_
+#define _CAAtoms_H_
+
 #include <CoreFoundation/CFString.h>
 
 extern "C" {
@@ -420,3 +423,4 @@ extern CFStringRef CAAtomGetString(CAAtom atom);
 
 } // extern "C"
 
+#endif

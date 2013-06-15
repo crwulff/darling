@@ -24,7 +24,9 @@
 
 @end
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 extern NSString * const kCAMediaTimingFunctionLinear;
 extern NSString * const kCAMediaTimingFunctionEaseIn;
@@ -32,4 +34,6 @@ extern NSString * const kCAMediaTimingFunctionEaseOut;
 extern NSString * const kCAMediaTimingFunctionEaseInEaseOut;
 extern NSString * const kCAMediaTimingFunctionDefault;
 
+#ifdef __cplusplus
 } // extern "C"
+#endif

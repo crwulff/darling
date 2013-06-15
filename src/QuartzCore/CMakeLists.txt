@@ -20,6 +20,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 
 set(QuartzCore_SRCS
 	CAAtoms.cpp
+	CAAttrList.mm
 	CAAnimation.mm
 	CALayer.mm
 	CAMediaTiming.mm
