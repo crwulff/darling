@@ -468,23 +468,23 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 			{
 				for (uint32_t i = 0; i < symtab_cmd->nsyms; i++)
 				{
-					Symbol sym;
 					nlist* nl = (nlist*)symtab;
-					sym.name = symstrtab + nl->n_strx;
+					const char *name = symstrtab + nl->n_strx;
+					uint64_t addr;
 					if (m_is64)
 					{
-						sym.addr = nl->n_value;
+						addr = nl->n_value;
 						symtab += 4;
 					}
 					else
 					{
-						sym.addr = (uint32_t)nl->n_value;
+						addr = (uint32_t)nl->n_value;
 						symtab += 3;
 					}
 
 					LOGF("%d %s(%d) %p\n",
-						i, sym.name.c_str(), nl->n_strx, (void*)sym.addr);
-					m_symbols.push_back(sym);
+						i, name, nl->n_strx, (void*)addr);
+					m_symbols.emplace_back(name, addr);
 				}
 			}
 

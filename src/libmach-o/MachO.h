@@ -80,6 +80,8 @@ public:
 	{
 		std::string name;
 		uint64_t addr;
+
+		Symbol(const char* name, uint64_t addr) : name(name), addr(addr) {}
 	};
 	
 	struct Section
