@@ -689,13 +689,16 @@ void* __darwin_dlsym(void* handle, const char* symbol, void* extra)
 		const std::list<Exports*>& le = g_loader->getExports();
 		std::list<Exports*>::const_iterator it = le.begin();
 
+		std::string symbolStr(symbol);
+		std::string symbolUStr(std::string("_") + symbol);
+
 		while (it != le.end())
 		{
 			Exports* e = *it;
-			Exports::iterator itSym = e->find(symbol);
+			Exports::iterator itSym = e->find(symbolStr);
 		
 			if (itSym == e->end())
-				itSym = e->find(std::string("_") + symbol); // TODO: WTF?
+				itSym = e->find(symbolUStr); // TODO: WTF?
 		
 			if (itSym != e->end())
 			{
