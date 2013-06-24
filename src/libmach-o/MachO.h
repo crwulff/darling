@@ -51,6 +51,8 @@ public:
 	{
 		uint64_t vmaddr;
 		uint8_t type;
+
+		Rebase(uint64_t vmaddr, uint8_t type) : vmaddr(vmaddr), type(type) {}
 	};
 
 	struct Bind
@@ -111,7 +113,7 @@ public:
 
 	const std::vector<const char*>& rpaths() const { return m_rpaths; }
 
-	const std::vector<Rebase*>& rebases() const { return m_rebases; }
+	const std::vector<Rebase>& rebases() const { return m_rebases; }
 
 	const std::vector<Bind*>& binds() const { return m_binds; }
 
@@ -158,7 +160,7 @@ public:
 	std::vector<segment_command*> m_segments;
 	std::vector<const char*> m_dylibs;
 	std::vector<const char*> m_rpaths;
-	std::vector<Rebase*> m_rebases;
+	std::vector<Rebase> m_rebases;
 	std::vector<Bind*> m_binds;
 	std::vector<Export*> m_exports;
 	std::vector<Symbol> m_symbols;

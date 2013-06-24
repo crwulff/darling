@@ -243,7 +243,7 @@ void printBinInfo(const char* path, const char* arch, const char* opt)
 		{
 			std::cout << "Rebases:\n";
 
-			for (MachO::Rebase* r : macho->rebases())
+			for (const MachO::Rebase& r : macho->rebases())
 			{
 				std::cout << "\t at [0x" << std::hex << std::setfill('0');
 
@@ -252,7 +252,7 @@ void printBinInfo(const char* path, const char* arch, const char* opt)
 				else
 					std::cout << std::setw(8);
 
-				std::cout << r->vmaddr << std::dec << std::setw(0) << "]\n";
+				std::cout << r.vmaddr << std::dec << std::setw(0) << "]\n";
 			}
 			break;
 		}

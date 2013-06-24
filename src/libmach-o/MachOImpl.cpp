@@ -749,7 +749,6 @@ void MachOImpl::processLoaderCommands(const mach_header* header)
 
 void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 {
-	Rebase* rebase;
 	const uint64_t relocBase = relocation_base();
 
 #ifndef __x86_64__ // "In the OS X x86-64 environment scattered relocations are not used."
@@ -768,7 +767,7 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 			return;
 		}
 
-		rebase = new Rebase { ptrTo64(scattered->r_address), REBASE_TYPE_POINTER };
+		m_rebases.emplace_back(ptrTo64(scattered->r_address), REBASE_TYPE_POINTER);
 	}
 	else
 #endif
@@ -787,13 +786,10 @@ void MachOImpl::readInternalRelocation(const struct relocation_info* reloc)
 			return;
 		}
 
-		rebase = new Rebase { ptrTo64(reloc->r_address + relocBase), REBASE_TYPE_POINTER };
+		m_rebases.emplace_back(ptrTo64(reloc->r_address + relocBase), REBASE_TYPE_POINTER);
 
-		LOG << "Adding a rebase: 0x" << std::hex << rebase->vmaddr << std::dec << std::endl;
+		LOG << "Adding a rebase: 0x" << std::hex << m_rebases.back().vmaddr << std::dec << std::endl;
 	}
-
-	if (rebase)
-		m_rebases.push_back(rebase);
 }
 
 void MachOImpl::readExternalRelocation(const struct relocation_info* reloc, uint32_t* symtab, const char* symstrtab)
@@ -890,8 +886,6 @@ void MachOImpl::close()
 		delete b;
 	m_binds.clear();
 
-	for (auto* r : m_rebases)
-		delete r;
 	m_rebases.clear();
 
 	for (auto* e : m_exports)

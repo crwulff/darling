@@ -105,7 +105,6 @@ bool RebaseState::readRebaseOp(const uint8_t*& p)
 
 void RebaseState::addRebase()
 {
-	MachO::Rebase* rebase = new MachO::Rebase();
 	uint64_t vmaddr;
 	if (mach->m_is64)
 		vmaddr = mach->m_segments64[seg_index]->vmaddr;
@@ -114,9 +113,8 @@ void RebaseState::addRebase()
 
 	LOGF("add rebase! seg_index=%d seg_offset=%llu type=%d vmaddr=%p\n",
 			seg_index, (ull)seg_offset, type, (void*)vmaddr);
-	rebase->vmaddr = vmaddr + seg_offset;
-	rebase->type = type;
-	mach->m_rebases.push_back(rebase);
+
+	mach->m_rebases.emplace_back(vmaddr + seg_offset, type);
 
 	seg_offset += mach->m_ptrsize;
 }

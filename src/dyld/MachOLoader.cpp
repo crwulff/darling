@@ -304,10 +304,10 @@ void MachOLoader::checkMmapMinAddr(intptr addr)
 
 void MachOLoader::doRebase(const MachO& mach, intptr slide)
 {
-	for (const MachO::Rebase* rebase : mach.rebases())
+	for (const MachO::Rebase& rebase : mach.rebases())
 	{
-		void* addr = reinterpret_cast<void*>(rebase->vmaddr + slide);
-		switch (rebase->type)
+		void* addr = reinterpret_cast<void*>(rebase.vmaddr + slide);
+		switch (rebase.type)
 		{
 			case REBASE_TYPE_POINTER:
 			{
@@ -340,7 +340,7 @@ void MachOLoader::doRebase(const MachO& mach, intptr slide)
 			default:
 			{
 				std::stringstream ss;
-				ss << "Unknown rebase type: " << int(rebase->type);
+				ss << "Unknown rebase type: " << int(rebase.type);
 				
 				throw std::runtime_error(ss.str());
 			}
