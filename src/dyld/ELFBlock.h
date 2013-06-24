@@ -35,19 +35,25 @@ class ELFBlock
 				class DataChunk
 				{
 					public:
-						DataChunk(void *start, uint64_t size) : m_start(start), m_size(size) {}
+						DataChunk(void *start, uint64_t startOffset, uint64_t size) : m_start(start), m_startOffset(startOffset), m_size(size) {}
 					public:
 						void     *m_start;
+						uint64_t  m_startOffset;
 						uint64_t  m_size;
 				};
 
 			public:
 				Section(const std::string &name, void *start, uint64_t size, uint64_t flags, uint64_t type, bool loadable) :
-					m_name(name), m_flags(flags), m_type(type), m_offset(0), m_loadable(loadable)
+					m_name(name), m_lastUsedChunk(nullptr), m_flags(flags), m_type(type), m_offset(0), m_loadable(loadable)
 				{
 					if (start != nullptr || size > 0)
 					{
-						m_data.emplace_back(start, size);
+						uint64_t startOffset = 0;
+						if (m_data.size() > 0)
+						{
+							startOffset = m_data.back().m_startOffset + m_data.back().m_size;
+						}
+						m_data.emplace_back(start, startOffset, size);
 					}
 				}
 
@@ -61,7 +67,12 @@ class ELFBlock
 				{
 					if (start != nullptr || size > 0)
 					{
-						m_data.emplace_back(start, size);
+						uint64_t startOffset = 0;
+						if (m_data.size() > 0)
+						{
+							startOffset = m_data.back().m_startOffset + m_data.back().m_size;
+						}
+						m_data.emplace_back(start, startOffset, size);
 					}
 				}
 
@@ -72,6 +83,12 @@ class ELFBlock
 
 				void* getPointer(uint64_t offset) const
 				{
+					// Optimization - Most often this gets called repeatedly for the same chunk.
+					if (m_lastUsedChunk && (m_lastUsedChunk->m_startOffset <= offset) && (m_lastUsedChunk->m_startOffset + m_lastUsedChunk->m_size > offset))
+					{
+						return (void*)((uintptr_t)m_lastUsedChunk->m_start + (offset - m_lastUsedChunk->m_startOffset));
+					}
+
 					auto chunk = m_data.begin();
 					while (chunk != m_data.end() && offset > chunk->m_size)
 					{
@@ -80,8 +97,10 @@ class ELFBlock
 					}
 					if (chunk == m_data.end())
 					{
+						m_lastUsedChunk = nullptr;
 						return nullptr;
 					}
+					m_lastUsedChunk = &(*chunk);
 					return (void*)((uintptr_t)chunk->m_start + offset);
 				}
 
@@ -102,6 +121,9 @@ class ELFBlock
 				uint64_t               m_type;
 				uint64_t               m_offset;
 				bool                   m_loadable;
+
+			protected:
+				mutable const DataChunk *m_lastUsedChunk;
 		};
 
 		class Symbol
