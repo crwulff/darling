@@ -27,6 +27,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include "FileMap.h"
 #include "stlutils.h"
 #include "public.h"
+#include "dyld.h"
 #include <limits.h>
 #include <iostream>
 #include <cstring>
@@ -618,6 +619,7 @@ void MachOLoader::loadExports(const MachO& mach, intptr slide, Exports* exports,
 	
 	for (MachO::Export* exp : mach.exports())
 	{
+		//std::cout << "EXP: " << exp->name << std::endl;
 		exp->addr += slide;
 		if (exp->resolver) // EXPORT_SYMBOL_FLAGS_STUB_AND_RESOLVER support
 			exp->resolver += slide;
@@ -627,7 +629,7 @@ void MachOLoader::loadExports(const MachO& mach, intptr slide, Exports* exports,
 		{
 			// Until we support two-level namespaces, duplicate symbols may happen where they would not happen on Darwin.
 			// In this case we simply use the first known symbol.
-			LOG << "Warning: duplicate exported symbol name: " << exp->name << std::endl;
+			LOG << "Warning: duplicate exported symbol name: " << exp->name << " in " << mach.filename() << std::endl;
 		}
 
 		if (elf)
@@ -678,6 +680,7 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	loadInitFuncs(mach, slide);
 
 	loadExports(mach, slide, exports, elf);
+	fillInProgramVars(exports);
 
 	// Add symbols to debug info
 	if (elf)
@@ -719,6 +722,25 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	}
 	
 	popCurrentLoader();
+}
+
+void MachOLoader::fillInProgramVars(Exports* exports)
+{
+	auto it = exports->find("_NXArgc");
+	if (it != exports->end())
+		*((int*)it->second.addr) = g_argc;
+	
+	it = exports->find("_NXArgv");
+	if (it != exports->end())
+		*((char***)it->second.addr) = g_argv;
+	
+	it = exports->find("_environ");
+	if (it != exports->end())
+		*((char***)it->second.addr) = environ;
+	
+	it = exports->find("___progname");
+	if (it != exports->end())
+		*((const char**)it->second.addr) = g_argv[0];
 }
 
 void MachOLoader::doPendingTLS()
@@ -818,6 +840,7 @@ void MachOLoader::runPendingInitFuncs(int argc, char** argv, char** envp, char**
 		LOG << "calling initializer function " << *init_func << std::endl;
 		
 		// TODO: missing ProgramVars! http://blogs.embarcadero.com/eboling/2010/01/29/5639/
+		// This struct can be retrieved by looking up section "__program_vars" in main app
 		/*
 		 *	struct ProgramVars {
 			const void*	mh;

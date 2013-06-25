@@ -51,6 +51,7 @@ id GetBundle(const char* filename)
 
 static void myinit()
 {
+	GSInitializeProcess(g_argc, g_argv, environ);
 	LOG << "Swizzling methods in NSBundle\n";
 
 	MethodSwizzle(objc_getMetaClass("NSBundle"), @selector(mainBundle), @selector(x_mainBundle));
@@ -58,9 +59,7 @@ static void myinit()
 	MethodSwizzle(objc_getClass("NSBundle"), @selector(executablePath), @selector(x_executablePath));
 	MethodSwizzle(objc_getClass("NSBundle"), @selector(load), @selector(x_load));
 
-	[NSBundle mainBundle];
-
-	GSInitializeProcess(g_argc, g_argv, environ);
+	//[NSBundle mainBundle];
 
 	// Many OS X apps assume that there is a "default" autorelease pool provided
 	g_pool = [[NSAutoreleasePool alloc] init];
