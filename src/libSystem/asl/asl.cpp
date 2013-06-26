@@ -126,7 +126,15 @@ int asl_vlog(aslclient asl, aslmsg msg, int level, const char *format, va_list a
 	if (level > 0) // non-standard feature to avoid code duplication
 		msg2.set(ASL_KEY_LEVEL, ASL_LEVELS[level]);
 
-	return !asl->log(&msg2);
+	if (asl)
+	{
+		return !asl->log(&msg2);
+	}
+	else
+	{
+		fprintf(stderr, "ASL: (NULL) \"%s\"\n", msg2.get(ASL_KEY_MSG));
+		return 0;
+	}
 }
 
 int asl_send(aslclient asl, aslmsg msg)
