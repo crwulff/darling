@@ -26,6 +26,8 @@ const NXArchInfo* NXGetArchInfoFromCpuType(cpu_type_t cputype, cpu_subtype_t cpu
 struct fat_arch* NXFindBestFatArch(cpu_type_t cputype, cpu_subtype_t cpusubtype, struct fat_arch *fat_archs, uint32_t nfat_archs);
 cpu_subtype_t NXCombineCpuSubtypes(cpu_type_t cputype, cpu_subtype_t cpusubtype1, cpu_subtype_t cpusubtype2);
 
+cpu_type_t _CSGetProcessorArchitecture(void);
+
 #ifdef __cplusplus
 }
 #endif

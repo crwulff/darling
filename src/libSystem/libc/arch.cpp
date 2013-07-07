@@ -116,3 +116,7 @@ cpu_subtype_t NXCombineCpuSubtypes(cpu_type_t cputype, cpu_subtype_t cpusubtype1
 	}
 }
 
+cpu_type_t _CSGetProcessorArchitecture(void)
+{
+	return 16777223; // TODO: detect CPU type. Just returns x86_64 for now.
+}
