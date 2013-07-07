@@ -45,10 +45,15 @@ typedef	short			__int16_t;
 typedef	unsigned short		__uint16_t;
 typedef int			__int32_t;
 typedef unsigned int		__uint32_t;
-/*
+
+#if __WORDSIZE == 64
+typedef long     		__int64_t;
+typedef unsigned long     	__uint64_t;
+#else
 typedef long long		__int64_t;
 typedef unsigned long long	__uint64_t;
-*/
+#endif
+
 typedef long			__darwin_intptr_t;
 typedef unsigned int		__darwin_natural_t;
 

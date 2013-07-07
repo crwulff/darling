@@ -111,8 +111,12 @@ set(machkern_SRCS
 	kernel-mach/compat.cpp
 )
 
+set(launch_SRCS
+	liblaunch/liblaunch.c
+)
+
 add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS}
-	${machkern_SRCS} ${asl_SRCS} keymgr/keymgr.c)
+	${machkern_SRCS} ${asl_SRCS} ${launch_SRCS} keymgr/keymgr.c)
 # -luuid to make uuid_ functions available for Darwin apps
 target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
 add_dependencies(System.B.dylib mach-o)
