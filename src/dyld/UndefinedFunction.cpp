@@ -55,6 +55,12 @@ UndefMgr::~UndefMgr()
 
 }
 
+id UndefinedClassInitialize(id obj, SEL sel)
+{
+	fprintf(stderr, "Undefined class %s used\n", class_getName(object_getClass(obj)));
+	return obj;
+}
+
 void* UndefMgr::generateNew(const char* name)
 {
 	bool isClass = (strncmp(name, "OBJC_CLASS", 10) == 0);
@@ -76,12 +82,20 @@ void* UndefMgr::generateNew(const char* name)
 		else
 		{
 			classStub = objc_allocateClassPair(nullptr, name, 0);
+			if (isMetaClass)
+			{
+				// Put in a dummy initialize method that lets us know the class got used
+				IMP imp = reinterpret_cast<IMP>(&UndefinedClassInitialize);
+				SEL sel = sel_registerTypedName_np("initialize", NULL);
+				class_addMethod(object_getClass(reinterpret_cast<id>(classStub)), sel, imp, NULL);
+			}
 			objc_registerClassPair(classStub);
 			for (ClassRegisterHookFunc* func : g_objcClassHooks)
 			{
 				func(object_getClass(reinterpret_cast<id>(classStub)));
 				func(classStub);
 			}
+			fprintf(stderr, "Undef class for class %s at %p\n", class_getName(classStub), classStub);
 			undefClasses[name] = classStub;
 		}
 
