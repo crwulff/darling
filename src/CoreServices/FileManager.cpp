@@ -135,6 +135,8 @@ char* realpath_ns(const char* path)
 	bname = basename(dup2);
 
 	real = realpath(dname, nullptr);
+	if (!real) return real;
+
 	complete = (char*) malloc(strlen(real) + strlen(bname) + 2);
 
 	strcpy(complete, real);
