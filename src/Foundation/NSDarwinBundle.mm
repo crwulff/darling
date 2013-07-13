@@ -147,8 +147,8 @@ __attribute__((destructor)) static void myexit()
 	{
 		// Implementation swapped - call original
 		NSString * path = [self x_executablePath];
-		NSString * macPath = [path stringByAppendingPathComponent: @"MacOs"];
-		if (nil != [[NSFileManager defaultManager] directoryContentsAtPath: macPath])
+		NSString * macPath = [[[path stringByDeletingLastPathComponent] stringByAppendingPathComponent: @"MacOS"] stringByAppendingPathComponent: [path lastPathComponent]];
+		if ([[NSFileManager defaultManager] fileExistsAtPath: macPath])
 		{
 			path = macPath;
 		}
