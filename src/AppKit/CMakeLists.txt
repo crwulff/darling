@@ -24,6 +24,7 @@ set(AppKit_SRCS
 	NSAnimationManager.mm
 	NSDocumentController.mm
 	NSImage.mm
+	NSKeyBindingManager.mm
 	NSKeyValueBinding.mm
 	NSLayoutConstraint.mm
 	NSPasteboard.mm
