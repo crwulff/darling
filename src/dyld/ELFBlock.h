@@ -90,7 +90,7 @@ class ELFBlock
 					}
 
 					auto chunk = m_data.begin();
-					while (chunk != m_data.end() && offset > chunk->m_size)
+					while (chunk != m_data.end() && offset >= chunk->m_size)
 					{
 						offset -= chunk->m_size;
 						chunk++;
