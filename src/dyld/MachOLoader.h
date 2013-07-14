@@ -101,6 +101,9 @@ public:
 	
 	// Gets the path to the currently loaded Mach-O file
 	const std::string& getCurrentLoader() const;
+
+	// Replace the current rpath context and optionally return the existing one
+	void setRpathContext(const std::vector<std::string> &context, std::vector<std::string> *prevContext);
 	
 private:
 	// Jumps to the application entry

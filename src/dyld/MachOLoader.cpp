@@ -656,6 +656,18 @@ void MachOLoader::popCurrentLoader()
 	m_loaderPath.pop();
 }
 
+void MachOLoader::setRpathContext(const std::vector<std::string> &context, std::vector<std::string> *prevContext)
+{
+	if (prevContext)
+	{
+		prevContext->clear();
+		prevContext->assign(m_rpathContext.begin(), m_rpathContext.end());
+	}
+
+	m_rpathContext.clear();
+	m_rpathContext.assign(context.begin(), context.end());
+}
+
 void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* exports, bool bindLater, bool bindLazy, ELFBlock* elf)
 {
 	intptr slide = 0;

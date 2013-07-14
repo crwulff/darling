@@ -162,7 +162,7 @@ static std::string replacePathPrefix(const char* prefix, const char* prefixed, c
 void* __darwin_dlopen(const char* filename, int flag)
 {
 	void* callerLocation;
-	std::vector<std::string> rpathList;
+	std::vector<std::string> rpathList, prevContext;
 	const FileMap::ImageMap *mainExecutable, *callerExecutable;
 	
 	callerLocation = __builtin_return_address(0);
@@ -173,7 +173,13 @@ void* __darwin_dlopen(const char* filename, int flag)
 	if (callerExecutable != nullptr && callerExecutable != mainExecutable)
 		rpathList.insert(rpathList.end(), callerExecutable->rpaths.begin(), callerExecutable->rpaths.end());
 	
-	return Darling::DlopenWithContext(filename, flag, rpathList);
+	g_loader->setRpathContext(rpathList, &prevContext);
+
+	void* result = Darling::DlopenWithContext(filename, flag, rpathList);
+
+	g_loader->setRpathContext(prevContext, NULL);
+
+	return result;
 }
 
 static const char* resolveAlias(const char* library)
