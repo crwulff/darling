@@ -75,7 +75,7 @@ void RegisterFramework(const char** classNames, size_t count, const char* path)
 	NSString* bundlePath = [NSString stringWithUTF8String: path];
 	NSString *bundleName, *bundleVersion = nil;
 	NSString* className;
-	Class synthetizedClass;
+	Class synthesizedClass;
 	NSDarwinFramework* fwInstance;
 	NSString** nsClassNames;
 
@@ -91,7 +91,14 @@ void RegisterFramework(const char** classNames, size_t count, const char* path)
 
 		bundlePath = [bundlePath stringByDeletingLastPathComponent];
 		if ([[bundlePath lastPathComponent] isEqual: @"Versions"])
+		{
 			bundleVersion = cur;
+		}
+
+		if ([cur isEqual: @"Contents"])
+		{
+			break;
+		}
 	}
 
 	if ([bundlePath isEqual: @"/"])
@@ -109,8 +116,13 @@ void RegisterFramework(const char** classNames, size_t count, const char* path)
 
 	className = [@"NSFramework_" stringByAppendingString: bundleName];
 
-	synthetizedClass = objc_allocateClassPair([NSDarwinFramework class], [className UTF8String], 0);
-	objc_registerClassPair(synthetizedClass);
+	synthesizedClass = objc_allocateClassPair([NSDarwinFramework class], [className UTF8String], 0);
+	if (nil == synthesizedClass)
+	{
+		LOG << "Class " << [className UTF8String] << " already exists." << std::endl;
+		return;
+	}
+	objc_registerClassPair(synthesizedClass);
 
 	nsClassNames = new NSString*[count+1];
 	for (size_t i = 0; i < count; i++)
@@ -118,7 +130,7 @@ void RegisterFramework(const char** classNames, size_t count, const char* path)
 	
 	nsClassNames[count] = nil;
 
-	fwInstance = [[synthetizedClass alloc] initWithVersion: bundleVersion
+	fwInstance = [[synthesizedClass alloc] initWithVersion: bundleVersion
                                                    classes: nsClassNames];
 	
 	LOG << "Created NSDarwinFramework instance named " << ([className UTF8String]) <<
@@ -126,7 +138,7 @@ void RegisterFramework(const char** classNames, size_t count, const char* path)
 	
 	if ([NSBundle respondsToSelector: @selector(_addFrameworkFromClass:withPath:)])
 	{
-		[NSBundle _addFrameworkFromClass: synthetizedClass
+		[NSBundle _addFrameworkFromClass: synthesizedClass
 		                        withPath: bundlePath];
 	}
 	else
