@@ -101,8 +101,7 @@ void ProcessImageLoad(uint32_t image_index)
 	if (!classNames.empty() && slide > 0)
 	{
 		// Generate a NSFramework_XXXX class for GNUstep's NSBundle
-		const char* path = dyld_image_path_containing_address(dataPtr);
-		RegisterFramework(&classNames[0], classNames.size(), path);
+		RegisterFramework(&classNames[0], classNames.size(), name);
 	}
 
 	static SEL selInit = sel_getUid("load");
