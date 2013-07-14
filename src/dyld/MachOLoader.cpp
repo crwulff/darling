@@ -663,6 +663,11 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	const FileMap::ImageMap* img;
 	size_t origRpathCount;
 
+	// The first time load is called, it is for the main executable
+	static bool firstLoad = true;
+	bool mainImage = firstLoad;
+	firstLoad = false;
+
 	m_exports.push_back(exports);
 	pushCurrentLoader(sourcePath.c_str());
 
@@ -700,7 +705,7 @@ void MachOLoader::load(const MachO& mach, std::string sourcePath, Exports* expor
 	}
 
 	uint32_t image_index = 0;
-	img = g_file_map.add(mach, slide, base, bindLazy, elf, image_index);
+	img = g_file_map.add(mach, slide, base, bindLazy, elf, image_index, mainImage);
 	
 	if (!bindLater)
 		doBind(mach.binds(), slide, !bindLazy);

@@ -36,7 +36,7 @@ FileMap::~FileMap()
 	}
 }
 
-const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index)
+const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index, bool mainExecutable)
 {
 	ImageMap* symbol_map = new ImageMap;
 
@@ -87,6 +87,11 @@ const FileMap::ImageMap* FileMap::add(const MachO& mach, uintptr_t slide, uintpt
 	for (const char* rpath : mach.rpaths())
 		symbol_map->rpaths.push_back(rpath);
 
+	if (mainExecutable)
+	{
+		m_mainExecutable = symbol_map;
+	}
+
 	return symbol_map;
 }
 
@@ -129,8 +134,8 @@ const char* FileMap::gdbInfoForAddr(const void* p) const
 
 const FileMap::ImageMap* FileMap::mainExecutable() const
 {
-	assert(!m_maps_vec.empty());
-	return m_maps_vec[0];
+	assert(m_mainExecutable != NULL);
+	return m_mainExecutable;
 }
 
 const char* FileMap::fileNameForAddr(const void* p) const

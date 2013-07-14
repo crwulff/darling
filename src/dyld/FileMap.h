@@ -32,11 +32,12 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 class FileMap
 {
 public:
+	FileMap() : m_mainExecutable(NULL) {}
 	~FileMap();
 	
 	struct ImageMap;
 
-	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index);
+	const ImageMap* add(const MachO& mach, uintptr_t slide, uintptr_t base, bool bindLazy, ELFBlock *elf, uint32_t &image_index, bool mainExecutable);
 
 	void addWatchDog(uintptr_t addr);
 
@@ -71,6 +72,7 @@ private:
 	std::map<uintptr_t, ImageMap*> m_maps;
 	std::map<mach_header*, ImageMap*> m_maps_mach;
 	std::vector<ImageMap*> m_maps_vec; // for easier access
+	ImageMap *m_mainExecutable;
 	mutable char m_dumped_stack_frame_buf[4096];
 };
 
