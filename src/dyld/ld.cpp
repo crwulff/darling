@@ -237,9 +237,9 @@ void* Darling::DlopenWithContext(const char* filename, int flag, const std::vect
 	flag = translateFlags(flag);
 
 	// Apply aliases first
-	if (g_iniConfig && g_iniConfig->hasSection("aliases"))
+	if (g_iniConfig && g_iniConfig->hasSection("dylibs"))
 	{
-		const IniConfig::ValueMap* m = g_iniConfig->getSection("aliases");
+		const IniConfig::ValueMap* m = g_iniConfig->getSection("dylibs");
 		if (map_contains(*m, filename))
 		{
 			path = map_get(*m, filename);
