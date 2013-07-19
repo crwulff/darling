@@ -220,6 +220,14 @@ void DWARFProducer::convertSymbols(void)
 			}
 
 			section++, sectionDie++;
+
+			if (section == sections.end() || sectionDie == m_sectionDies.end())
+			{
+				section = sections.begin();
+				sectionDie = m_sectionDies.begin();
+				std::cerr << "Symbol outside of debuggable sections: " << symbol.second.m_name << " @" << symbol.second.m_addr << std::endl;
+				return;
+			}
 		}
 
 		// Add the symbols (pretend they are all functions for the moment unless we can determine better)
