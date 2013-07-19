@@ -91,10 +91,8 @@ configure_file(config.h.in config.h)
 # If building on a 64bit system, only install these for 64bits
 if (NOT DEFINED SUFFIX OR SUFFIX STREQUAL "64")
 	install(FILES etc/dylib.conf DESTINATION /etc/darling)
-	add_subdirectory(src/motool)
-	add_subdirectory(src/macbinary)
-	add_subdirectory(src/libmacarchive)
-	add_subdirectory(src/crash)
+ 	add_subdirectory(src/motool)
+ 	add_subdirectory(src/crash)
 endif(NOT DEFINED SUFFIX OR SUFFIX STREQUAL "64")
 
 if (WITH_TESTS)
@@ -138,5 +136,3 @@ add_subdirectory(src/xpc)
 
 add_dependencies(dyld${SUFFIX} mach-o)
 add_dependencies(Cocoa crashhandler)
-
-
