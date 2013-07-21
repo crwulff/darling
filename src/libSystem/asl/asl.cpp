@@ -118,7 +118,8 @@ int asl_vlog(aslclient asl, aslmsg msg, int level, const char *format, va_list a
 			return 1;
 	}
 
-	ASLMsg msg2(*msg);
+	ASLMsg msg2;
+	if (msg) msg2 = *msg;
 
 	msg2.set(ASL_KEY_MSG, buffer);
 	free(buffer);
