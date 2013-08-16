@@ -29,4 +29,6 @@ enum {
 
 CFArrayRef LSCopyApplicationURLsForURL(CFURLRef inURL, LSRolesMask inRoleMask);
 
+OSStatus LSRegisterURL(CFURLRef inURL, Boolean inUpdate);
+
 }

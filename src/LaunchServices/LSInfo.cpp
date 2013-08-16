@@ -23,3 +23,9 @@ CFArrayRef LSCopyApplicationURLsForURL(CFURLRef inURL, LSRolesMask inRoleMask)
   // TODO
   return NULL;
 }
+
+OSStatus LSRegisterURL(CFURLRef inURL, Boolean inUpdate)
+{
+  // TODO
+  return 0;
+}
