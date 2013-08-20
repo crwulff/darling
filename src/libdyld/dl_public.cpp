@@ -22,7 +22,7 @@ static std::set<Darling::DlsymHookFunc> g_dlsymHooks;
 
 using namespace Darling;
 
-static void setLastError(const std::string& str)
+void Darling::dl_setLastError(const std::string& str)
 {
 	strncpy(g_lastError, str.c_str(), sizeof(g_lastError));
 	g_lastError[sizeof(g_lastError)-1] = 0;
@@ -38,6 +38,7 @@ void* __darwin_dlopen(const char* filename, int flag)
 	
 	resolved = DylibSearch::instance()->resolve(filename, MachOMgr::instance()->mainModule());
 
+	LOG << "dlopen(): " << filename << " resolved to " << resolved << std::endl;
 	if (resolved.empty())
 		resolved = filename;
 
@@ -71,7 +72,7 @@ void* __darwin_dlopen(const char* filename, int flag)
 			}
 			catch (const std::exception& e)
 			{
-				setLastError(e.what());
+				dl_setLastError(e.what());
 				return nullptr;
 			}
 		}
@@ -135,6 +136,8 @@ void* __darwin_dlsym(void* handle, const char* symbol)
 	std::string name = symbol;
 	std::string translated;
 	void* addr = nullptr;
+	
+	LOG << "__darwin_dlsym(): " << symbol << std::endl;
 
 	translated = processSymbolViaHooks(name);
 
@@ -165,7 +168,7 @@ void* __darwin_dlsym(void* handle, const char* symbol)
 	}
 	else
 	{
-		MachOObject* module;
+		LoadableObject* module;
 
 		if (handle == DARWIN_RTLD_MAIN_ONLY)
 			module = MachOMgr::instance()->mainModule();
@@ -174,6 +177,8 @@ void* __darwin_dlsym(void* handle, const char* symbol)
 			void* callerLocation = __builtin_return_address(0);
 			module = MachOMgr::instance()->objectForAddress(callerLocation);
 		}
+		else
+			module = static_cast<LoadableObject*>(handle);
 
 		if (!translated.empty())
 			addr = module->getExportedSymbol(translated.c_str(), false);
@@ -183,7 +188,7 @@ void* __darwin_dlsym(void* handle, const char* symbol)
 	}
 
 	if (!addr)
-		setLastError("Symbol not found");
+		dl_setLastError("Symbol not found");
 
 	return addr;
 }

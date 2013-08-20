@@ -88,6 +88,7 @@ include_directories(/usr/include/x86_64-linux-gnu/c++/4.7/)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 configure_file(config.h.in config.h)
+configure_file(frameworks.h.in frameworks.h)
 
 # If building on a 64bit system, only install these for 64bits
 #if (CMAKE_SIZEOF_VOID_P EQUAL 4 OR NOT CMAKE_INSTALL_LIBDIR STREQUAL "lib32")
@@ -103,12 +104,17 @@ add_subdirectory(src/libmach-o)
 add_subdirectory(src/libncurses)
 add_subdirectory(src/libobjcdarwin)
 add_subdirectory(src/libSystem)
+add_subdirectory(src/libltdl)
 add_subdirectory(src/util)
 add_subdirectory(src/AppKit)
 add_subdirectory(src/ApplicationServices)
 add_subdirectory(src/AGL)
+
+if (WITH_COREAUDIO)
 add_subdirectory(src/AudioToolbox)
 add_subdirectory(src/AudioUnit)
+endif (WITH_COREAUDIO)
+
 add_subdirectory(src/Carbon)
 add_subdirectory(src/Cocoa)
 add_subdirectory(src/ColorSync)
