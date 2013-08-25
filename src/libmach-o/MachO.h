@@ -27,6 +27,7 @@ along with Darling.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <list>
 #include <stdexcept>
+#include <unistd.h>
 
 #include <mach/vm_types.h>
 #include <mach-o/loader.h>
@@ -35,7 +36,7 @@ class MachO
 {
 public:
 	__attribute__ ((visibility ("default")))
-	static MachO* readFile(std::string path, const char* arch, bool need_exports = true);
+	static MachO* readFile(std::string path, const char* arch, bool need_exports = true, bool loadAny = false);
 	__attribute__ ((visibility ("default")))
 	static bool isMachO(const char* path);
 
@@ -44,6 +45,7 @@ public:
 
 	virtual ~MachO() {}
 	virtual void close() = 0;
+	inline void closeFd() { ::close(m_fd); m_fd = -1; }
 
 	const std::string& filename() const { return m_filename; }
 	
@@ -198,5 +200,6 @@ private:
 
 // we express stub binds as another type of ordinary bind
 #define BIND_TYPE_STUB 100
+#define BIND_TYPE_PCREL 101
 
 #endif	// MACH_O_H_

@@ -94,6 +94,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 	// conv->instance_size = ro->instSize;
 
 	objc_registerClassPair(conv);
+	
 	LOG << "ObjC class " << cls->data()->className << " now @" << conv << std::endl;
 	g_classPointers[cls] = conv;
 	g_classPointers[conv] = conv;

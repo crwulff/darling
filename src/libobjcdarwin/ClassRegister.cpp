@@ -1,7 +1,6 @@
 #include "ClassRegister.h"
-#include "../dyld/public.h"
-#include "../util/trace.h"
-#include "../util/log.h"
+#include <libdyld/dyld_public.h>
+#include <util/debug.h>
 
 #ifndef OBJC_ABI_2
 #	include "old/protocol.h"
@@ -15,6 +14,7 @@
 #include "common/selector.h"
 #include <map>
 #include <queue>
+#include <cassert>
 #include "NSDarwinFramework.h"
 
 // Superclass references in Mach-O don't use classref

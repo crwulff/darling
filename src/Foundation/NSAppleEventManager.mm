@@ -1,134 +1,76 @@
-
-#import	<Foundation/NSObject.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSLock.h>
-
-#include <AE/AEDataModel.h>
-
-@interface NSAppleEventDescriptor : NSObject
-// TODO
-@end
-
-@interface NSAppleEventManager : NSObject
-
-+ (NSAppleEventManager*) sharedAppleEventManager;
-
-- (void) setEventHandler: (id)handler
-	     andSelector: (SEL)handleEventSelector
-	   forEventClass: (AEEventClass)eventClass
-	      andEventID: (AEEventID)eventID;
-
-- (void) removeEventHandlerForEventClass: (AEEventClass)eventClass
-			      andEventID: (AEEventID)eventID;
-
-- (OSErr) dispatchRawAppleEvent: (const AppleEvent*)theAppleEvent
-		   withRawReply: (AppleEvent*)theReply
-		  handlerRefCon: (UInt32)handlerRefcon;
-
-- (NSAppleEventDescriptor*) currentAppleEvent;
-
-- (NSAppleEventDescriptor*) currentReplyAppleEvent;
-
-- (NSAppleEventDescriptor*) appleEventForSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID;
-
-- (NSAppleEventDescriptor*) replyAppleEventForSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID;
-
-- (void) resumeWithSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID;
-
-- (void) setCurrentAppleEventAndReplyEventWithSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID;
-
-- (NSAppleEventManagerSuspensionID) suspendCurrentAppleEvent;
-
-@end
+#include "NSAppleEventManager.h"
+#include <util/debug.h>
+#include <CoreServices/MacErrors.h>
 
 @implementation NSAppleEventManager
 
-static NSAppleEventManager* sharedManager = nil;
-
-+ (NSAppleEventManager*) sharedAppleEventManager;
++ (NSAppleEventManager *)sharedAppleEventManager
 {
-  if (sharedManager == nil)
-    {
-      NS_DURING
-	{
-	  [gnustep_global_lock lock];
-	  if (sharedManager == nil)
-	    {
-	      sharedManager = [[self alloc] init];
-	    }
-	  [gnustep_global_lock unlock];
-	}
-      NS_HANDLER
-	{
-	  // unlock then re-raise the exception
-	  [gnustep_global_lock unlock];
-	  [localException raise];
-	}
-      NS_ENDHANDLER
-    }
-  return sharedManager;
+	static NSAppleEventManager* instance = [[NSAppleEventManager alloc] init];
+	
+	return instance;
 }
 
-- (void) setEventHandler: (id)handler
-	     andSelector: (SEL)handleEventSelector
-	   forEventClass: (AEEventClass)eventClass
-	      andEventID: (AEEventID)eventID
+- (NSAppleEventDescriptor *)appleEventForSuspensionID:(NSAppleEventManagerSuspensionID)suspensionID
 {
-  // TODO
+	STUB();
+	return NULL;
 }
 
-- (void) removeEventHandlerForEventClass: (AEEventClass)eventClass
-			      andEventID: (AEEventID)eventID
+- (NSAppleEventDescriptor *)currentAppleEvent
 {
-  // TODO
+	STUB();
+	return NULL;
 }
 
-- (OSErr) dispatchRawAppleEvent: (const AppleEvent*)theAppleEvent
-		   withRawReply: (AppleEvent*)theReply
-		  handlerRefCon: (UInt32)handlerRefcon
+- (NSAppleEventDescriptor *)currentReplyAppleEvent
 {
-  // TODO
-  return 0;
+	STUB();
+	return NULL;
 }
 
-- (NSAppleEventDescriptor*) currentAppleEvent
+- (OSErr)dispatchRawAppleEvent:(const AppleEvent *)theAppleEvent
+                  withRawReply:(AppleEvent *)theReply
+                 handlerRefCon:(UInt32)handlerRefcon
 {
-  // TODO
-  return nil;
+	STUB();
+	return unimpErr;
 }
 
-- (NSAppleEventDescriptor*) currentReplyAppleEvent
+- (void)removeEventHandlerForEventClass:(AEEventClass)eventClass
+                             andEventID:(AEEventID)eventID
 {
-  // TODO
-  return nil;
+	STUB();
 }
 
-- (NSAppleEventDescriptor*) appleEventForSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID
+- (NSAppleEventDescriptor *)replyAppleEventForSuspensionID:(NSAppleEventManagerSuspensionID)suspensionID
 {
-  // TODO
-  return nil;
+	STUB();
+	return NULL;
 }
 
-- (NSAppleEventDescriptor*) replyAppleEventForSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID
+- (void)resumeWithSuspensionID:(NSAppleEventManagerSuspensionID)suspensionID
 {
-  // TODO
-  return nil;
+	STUB();
 }
 
-- (void) resumeWithSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID
+- (void)setCurrentAppleEventAndReplyEventWithSuspensionID:(NSAppleEventManagerSuspensionID)suspensionID
 {
-  // TODO
+	STUB();
 }
 
-- (void) setCurrentAppleEventAndReplyEventWithSuspensionID: (NSAppleEventManagerSuspensionID)suspensionID
+- (void)setEventHandler:(id)handler
+            andSelector:(SEL)handleEventSelector
+          forEventClass:(AEEventClass)eventClass
+             andEventID:(AEEventID)eventID
 {
-  // TODO
+	STUB();
 }
 
-- (NSAppleEventManagerSuspensionID) suspendCurrentAppleEvent
+- (NSAppleEventManagerSuspensionID)suspendCurrentAppleEvent
 {
-  // TODO
-  return 0;
+	STUB();
+	return NULL;
 }
 
 @end

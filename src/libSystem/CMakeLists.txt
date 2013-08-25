@@ -7,11 +7,14 @@ endif(COMMAND cmake_policy)
 
 enable_language(ASM_NASM)
 
+include(CheckIncludeFile)
+CHECK_INCLUDE_FILE(bsd/wchar.h HAS_BSD_WCHAR_H)
+
 if (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 	message(FATAL_ERROR "Clang is the only supported compiler (${CMAKE_CXX_COMPILER} used).")
 endif (NOT "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1}" MATCHES ".*clang")
 
-configure_file(config.h.in config.h)
+configure_file(config.h.in libsystem-config.h)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fblocks -std=c++11")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks -D_GNU_SOURCE")
 
@@ -25,6 +28,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks -D_GNU_SOURCE")
 #include_directories(${LIBCXX_INCLUDE_DIR})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../util)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../libmach-o)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include)
@@ -39,7 +43,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../include/xnu/bsd)
 
 set(libc_SRCS
 	libc/mac.c
-	libc/none.c
+	libc/rune-none.c
 	libc/popcount.c
 	libc/runetable.c
 	libc/stack_protector-obsd.c
@@ -75,6 +79,8 @@ set(libc_SRCS
 	libc/math.cpp
 	libc/sigsetjmp.cpp
 	libc/setjmp.nasm
+	libc/confstr.cpp
+	libc/progname.cpp
 	common/auto.cpp
 	common/path.cpp
 )
@@ -96,6 +102,7 @@ set(bsdkern_SRCS
 	kernel-bsd/fs.cpp
 	kernel-bsd/fcntl.cpp
 	kernel-bsd/proc.cpp
+	kernel-bsd/mman.cpp
 )
 
 set(machkern_SRCS
@@ -118,7 +125,7 @@ set(launch_SRCS
 add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS}
 	${machkern_SRCS} ${asl_SRCS} ${launch_SRCS} keymgr/keymgr.c)
 # -luuid to make uuid_ functions available for Darwin apps
-target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
+target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd -lutil ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
 add_dependencies(System.B.dylib mach-o)
 
 install(TARGETS System.B.dylib DESTINATION "lib${SUFFIX}/darling")

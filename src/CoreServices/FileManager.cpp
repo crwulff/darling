@@ -353,6 +353,21 @@ Boolean CFURLGetFSRef(CFURLRef urlref, FSRef* fsref)
 	return FSPathMakeRef((uint8_t*) buf.get(), fsref, nullptr) == noErr;
 }
 
+CFURLRef CFURLCreateFromFSRef(CFAllocatorRef alloc, FSRef* location)
+{
+	std::string path;
+	struct stat st;
+	Boolean isDir = false;
+	
+	if (!FSRefMakePath(location, path))
+		return nullptr;
+	
+	if (::stat(path.c_str(), &st))
+		isDir = S_ISDIR(st.st_mode);
+	
+	return CFURLCreateFromFileSystemRepresentation(alloc, (const UInt8*) path.c_str(), path.size(), isDir);
+}
+
 static std::string getUserDirsConfigPath()
 {
 	std::stringstream ss;
@@ -397,6 +412,7 @@ static std::string extractXDGValue(const char* home, const std::string& line)
 	return std::string();
 }
 
+// TODO: Test this function!
 OSStatus FSFindFolder(long vRefNum, OSType folderType, Boolean createFolder, FSRef* location)
 {
 	if (folderType == kTemporaryFolderType)

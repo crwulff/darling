@@ -6,7 +6,7 @@
 class ASLMsg
 {
 public:
-	ASLMsg(int type);
+	ASLMsg(int type = 0);
 
 	const char* get(const char* key) const;
 	const char* get(int index) const;

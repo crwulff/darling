@@ -1,30 +1,50 @@
 #include "CFPreferences.h"
-#include <stdio.h>
+#include <util/debug.h>
+#import <Foundation/NSUserDefaults.h>
+#import <CoreFoundation/CFNumber.h>
 
-#include <Foundation/NSUserDefaults.h>
-#include <CoreFoundation/CFString.h>
-#include <CoreFoundation/CFNumber.h>
+#ifndef CONST_STRING_DECL
+#	define CONST_STRING_DECL(name, value) const CFStringRef name = CFSTR(value);
+#endif
 
-const CFStringRef kCFPreferencesAnyApplication     = CFSTR("CFPreferencesAnyApplication");
-const CFStringRef kCFPreferencesCurrentApplication = CFSTR("CFPreferencesCurrentApplication");
-const CFStringRef kCFPreferencesAnyHost            = CFSTR("CFPreferencesAnyHost");
-const CFStringRef kCFPreferencesCurrentHost        = CFSTR("CFPreferencesCurrentHost");
-const CFStringRef kCFPreferencesAnyUser            = CFSTR("CFPreferencesAnyUser");
-const CFStringRef kCFPreferencesCurrentUser        = CFSTR("CFPreferencesCurrentUser");
+CONST_STRING_DECL(kCFPreferencesAnyApplication,
+  "kCFPreferencesAnyApplication");
+CONST_STRING_DECL(kCFPreferencesCurrentApplication,
+  "kCFPreferencesCurrentApplication");
+CONST_STRING_DECL(kCFPreferencesAnyHost,
+  "kCFPreferencesAnyHost");
+CONST_STRING_DECL(kCFPreferencesCurrentHost,
+  "kCFPreferencesCurrentHost");
+CONST_STRING_DECL(kCFPreferencesAnyUser,
+  "kCFPreferencesAnyUser");
+CONST_STRING_DECL(kCFPreferencesCurrentUser,
+  "kCFPreferencesCurrentUser");
 
 /* CFPreferences Private? */
-const CFStringRef kCFManagedPreferencesMCXObjectName             = CFSTR("CFManagedPreferencesMCXObjectName");
-const CFStringRef kCFManagedPreferencesMCXNotificationName       = CFSTR("CFManagedPreferencesMCXNotificationName");
-const CFStringRef kCFPreferencesDidChangeNotificationName        = CFSTR("CFPreferencesDidChangeNotificationName");
-const CFStringRef kCFPreferencesWebServicesProviderTypeMap       = CFSTR("CFPreferencesWebServicesProviderTypeMap");
-const CFStringRef kCFPreferencesWebServicesProviderTypeWebSearch = CFSTR("CFPreferencesWebServicesProviderTypeWebSearch");
-const CFStringRef kCFPreferencesDidChangeObject                  = CFSTR("CFPreferencesDidChangeObject");
+CONST_STRING_DECL(kCFManagedPreferencesMCXObjectName,
+  "CFManagedPreferencesMCXObjectName");
+CONST_STRING_DECL(kCFManagedPreferencesMCXNotificationName,
+  "CFManagedPreferencesMCXNotificationName");
+CONST_STRING_DECL(kCFPreferencesDidChangeNotificationName,
+  "CFPreferencesDidChangeNotificationName");
+CONST_STRING_DECL(kCFPreferencesWebServicesProviderTypeMap,
+  "CFPreferencesWebServicesProviderTypeMap");
+CONST_STRING_DECL(kCFPreferencesWebServicesProviderTypeWebSearch,
+  "CFPreferencesWebServicesProviderTypeWebSearch");
+CONST_STRING_DECL(kCFPreferencesDidChangeObject,
+  "CFPreferencesDidChangeObject");
 
 CFPropertyListRef CFPreferencesCopyAppValue(CFStringRef key, CFStringRef applicationID)
 {
-	// TODO: this ignores the applicationID and searches more than just the application domain
-
-	return [[NSUserDefaults standardUserDefaults] objectForKey: key];
+	if (applicationID == kCFPreferencesCurrentApplication)
+	{
+		return [[NSUserDefaults standardUserDefaults] objectForKey: (NSString*) key];
+	}
+	else
+	{
+		STUB();
+		return NULL;
+	}
 }
 
 Boolean CFPreferencesGetAppBooleanValue(CFStringRef key, CFStringRef applicationID, Boolean *keyExistsAndHasValidFormat)
@@ -74,6 +94,7 @@ Boolean CFPreferencesGetAppBooleanValue(CFStringRef key, CFStringRef application
 	}
 
 	return result;
+
 }
 
 CFIndex CFPreferencesGetAppIntegerValue(CFStringRef key, CFStringRef applicationID, Boolean *keyExistsAndHasValidFormat)
@@ -118,20 +139,18 @@ void CFPreferencesSetAppValue(CFStringRef key, CFPropertyListRef value, CFString
 
 void CFPreferencesAddSuitePreferencesToApp(CFStringRef applicationID, CFStringRef suiteID)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	//TODO
+	STUB();
 }
 
 void CFPreferencesRemoveSuitePreferencesFromApp(CFStringRef applicationID, CFStringRef suiteID)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	//TODO
+	STUB();
 }
 
 Boolean CFPreferencesAppSynchronize(CFStringRef applicationID)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return false; // TODO
+	STUB();
+	return 0;
 }
 
 CFPropertyListRef CFPreferencesCopyValue(CFStringRef key, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
@@ -143,8 +162,8 @@ CFPropertyListRef CFPreferencesCopyValue(CFStringRef key, CFStringRef applicatio
 
 CFDictionaryRef CFPreferencesCopyMultiple(CFArrayRef keysToFetch, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return NULL; // TODO
+	STUB();
+	return NULL;
 }
 
 void CFPreferencesSetValue(CFStringRef key, CFPropertyListRef value, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
@@ -156,31 +175,30 @@ void CFPreferencesSetValue(CFStringRef key, CFPropertyListRef value, CFStringRef
 
 void CFPreferencesSetMultiple(CFDictionaryRef keysToSet, CFArrayRef keysToRemove, CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	//TODO
+	STUB();
 }
 
 Boolean CFPreferencesSynchronize(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return false; // TODO
+	STUB();
+	return 0;
 }
 
 CFArrayRef CFPreferencesCopyApplicationList(CFStringRef userName, CFStringRef hostName)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return NULL; // TODO
+	STUB();
+	return NULL;
 }
 
 CFArrayRef CFPreferencesCopyKeyList(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return NULL; // TODO
+	STUB();
+	return NULL;
 }
 
 Boolean CFPreferencesAppValueIsForced(CFStringRef key, CFStringRef applicationID)
 {
-	printf("%s - Not implemented\n", __FUNCTION__);
-	return false; // TODO
+	STUB();
+	return 0;
 }
 

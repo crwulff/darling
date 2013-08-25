@@ -1,7 +1,9 @@
 
 #include <Foundation/NSString.h>
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 
 extern NSString * const NSURLKeysOfUnsetValuesKey;
 extern NSString * const NSURLNameKey;
@@ -93,4 +95,6 @@ extern NSString * const NSURLUbiquitousItemIsUploadingKey;
 extern NSString * const NSURLUbiquitousItemPercentDownloadedKey;
 extern NSString * const NSURLUbiquitousItemPercentUploadedKey;
 
+#ifdef __cplusplus
 }
+#endif

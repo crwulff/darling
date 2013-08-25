@@ -22,6 +22,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../CoreServices)
 set(Foundation_SRCS
 	NameTranslate.cpp
 	NSDarwinBundle.mm
+	NSAppleEventDescriptor.mm
 	NSAppleEventManager.mm
 	NSTextCheckingResult.mm
 	NSURL.mm

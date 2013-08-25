@@ -1,4 +1,4 @@
-#include "config.h"
+#include "libsystem-config.h"
 #include "stdio.h"
 #include "errno.h"
 #include "common/path.h"
@@ -18,11 +18,16 @@
 #include <typeinfo>
 #include "log.h"
 #include <ext/stdio_filebuf.h>
+#include <libdyld/MachOMgr.h>
+#include <bsd/stdio.h>
+#include <bsd/libutil.h>
+
+#ifdef HAS_BSD_WCHAR_H
+#	include <bsd/wchar.h>
+#endif
 
 template class __gnu_cxx::stdio_filebuf<char, std::char_traits<char> >;
 template class std::basic_filebuf<char, std::char_traits<char> >;
-
-extern char g_sysroot[PATH_MAX];
 
 //extern "C"
 //{
@@ -59,7 +64,7 @@ static __darwin_FILE* InitDarwinFILE(FILE* linux_fp)
 
 template<typename RetVal, typename Func, typename... Params> RetVal AutoFileErrno(Func f, __darwin_FILE* file, Params... params)
 {
-	RetVal rv = f(params..., file->linux_fp);
+	RetVal rv = f(params..., file ? file->linux_fp : nullptr);
 	if (!retvalOK(rv))
 		errnoOut();
 	return rv;
@@ -68,10 +73,10 @@ template<typename RetVal, typename Func, typename... Params> RetVal AutoFileErrn
 __darwin_FILE* __darwin_fopen(const char* path, const char* mode)
 {
 	TRACE2(path, mode);
-	if (!strchr(mode, 'w') && g_sysroot[0])
+	if (!strchr(mode, 'w') && Darling::MachOMgr::instance()->hasSysRoot())
 	{
 		const char* prefixed;
-		std::string lpath = g_sysroot;
+		std::string lpath = Darling::MachOMgr::instance()->sysRoot();
 		lpath += '/';
 		lpath += path;
 		
@@ -267,7 +272,7 @@ int __darwin_fflush(__darwin_FILE* fp)
 
 void __darwin_setbuf(__darwin_FILE* fp, char* buf)
 {
-	setbuf(fp->linux_fp, buf);
+	setbuf(fp ? fp->linux_fp : NULL, buf);
 }
 
 void __darwin_setbuffer(__darwin_FILE* fp, char* buf, size_t size)
@@ -277,12 +282,12 @@ void __darwin_setbuffer(__darwin_FILE* fp, char* buf, size_t size)
 
 int __darwin_ferror(__darwin_FILE* fp)
 {
-	return ferror(fp->linux_fp);
+	return ferror(fp ? fp->linux_fp : nullptr);
 }
 
 int __darwin_fileno(__darwin_FILE* fp)
 {
-	return fileno(fp->linux_fp);
+	return fileno(fp ? fp->linux_fp : nullptr);
 }
 
 __darwin_FILE* __darwin_tmpfile()
@@ -342,20 +347,6 @@ int __darwin_fsetpos(__darwin_FILE *stream, fpos_t *pos)
             errnoOut();
         return rv;
     }
-}
-
-int __darwin_fpurge(__darwin_FILE *stream)
-{
-	if (!stream)
-	{
-		errno = DARWIN_EINVAL;
-		return -1;
-	}
-	else
-	{
-		__fpurge(stream->linux_fp);
-		return 0;
-	}
 }
 
 int __darwin_getw(__darwin_FILE *stream)
@@ -420,10 +411,43 @@ int __darwin_remove(const char* path)
 	return AutoPathErrno<int>(remove, path);
 }
 
-std::__basic_file<char>* _ZNSt12__basic_fileIcE8sys_openEP7__sFILESt13_Ios_Openmode(std::__basic_file<char>* pThis, __darwin_FILE* f, std::ios_base::openmode mode)
+char* __darwin_fgetln(__darwin_FILE* f, size_t* lenp)
 {
-	return pThis->sys_open(f->linux_fp, mode);
+	return fgetln(f ? f->linux_fp : nullptr, lenp);
 }
+
+int __darwin_fpurge(__darwin_FILE *stream)
+{
+	if (!stream)
+	{
+		errno = DARWIN_EINVAL;
+		return -1;
+	}
+	else
+	{
+		__fpurge(stream->linux_fp);
+		return 0;
+	}
+}
+
+#ifdef HAS_BSD_WCHAR_H
+// bsd/libutil.h
+char* __darwin_fparseln(__darwin_FILE* f, size_t* a2, size_t* a3, const char* a4, int a5)
+{
+	return fparseln(f ? f->linux_fp : nullptr, a2, a3, a4, a5);
+}
+
+// bsd/wchar.h
+wchar_t* __darwin_fgetwln(__darwin_FILE* f, size_t* len)
+{
+	return fgetwln(f ? f->linux_fp : nullptr, len);
+}
+#endif
+
+//std::__basic_file<char>* _ZNSt12__basic_fileIcE8sys_openEP7__sFILESt13_Ios_Openmode(std::__basic_file<char>* pThis, __darwin_FILE* f, std::ios_base::openmode mode)
+//{
+//	return pThis->sys_open(f->linux_fp, mode);
+//}
 
 #ifdef __x86_64__
 

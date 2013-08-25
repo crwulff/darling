@@ -32,3 +32,6 @@ CMakeCache.txt
 config.h
 core
 
+# Directories where too much temp stuff may lay around
+tests
+
