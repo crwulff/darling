@@ -23,7 +23,7 @@ set(Metadata_SRCS
 )
 
 add_library(Metadata SHARED ${Metadata_SRCS})
-target_link_libraries(Metadata -lgnustep-corebase objc.A.dylib)
+target_link_libraries(Metadata -lgnustep-corebase objcdarwin)
 
 install(TARGETS Metadata DESTINATION "lib${SUFFIX}/darling")
 

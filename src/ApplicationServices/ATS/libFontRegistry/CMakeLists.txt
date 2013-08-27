@@ -20,7 +20,7 @@ set(libFontRegistry_SRCS
 )
 
 add_library(libFontRegistry SHARED ${libFontRegistry_SRCS})
-target_link_libraries(libFontRegistry -lgnustep-corebase objc.A.dylib)
+target_link_libraries(libFontRegistry -lgnustep-corebase objcdarwin)
 
 install(TARGETS libFontRegistry DESTINATION "lib${SUFFIX}/darling")
 

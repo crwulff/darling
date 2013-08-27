@@ -26,7 +26,7 @@ set(LaunchServices_SRCS
 )
 
 add_library(LaunchServices SHARED ${LaunchServices_SRCS})
-target_link_libraries(LaunchServices -lgnustep-corebase objc.A.dylib)
+target_link_libraries(LaunchServices -lgnustep-corebase objcdarwin)
 
 install(TARGETS LaunchServices DESTINATION "lib${SUFFIX}/darling")
 

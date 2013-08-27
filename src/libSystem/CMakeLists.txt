@@ -1,4 +1,4 @@
-project(System.dylib)
+project(libSystem)
 
 cmake_minimum_required(VERSION 2.4.0)
 if(COMMAND cmake_policy)
@@ -122,11 +122,11 @@ set(launch_SRCS
 	liblaunch/liblaunch.c
 )
 
-add_library(System.B.dylib SHARED ${libc_SRCS} ${bsdkern_SRCS}
+add_library(System SHARED ${libc_SRCS} ${bsdkern_SRCS}
 	${machkern_SRCS} ${asl_SRCS} ${launch_SRCS} keymgr/keymgr.c)
 # -luuid to make uuid_ functions available for Darwin apps
-target_link_libraries(System.B.dylib -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd -lutil ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
-add_dependencies(System.B.dylib mach-o)
+target_link_libraries(System -Wl,--no-as-needed xpc -ldl -lpthread -luuid mach-o -lrt -lssl -lbsd -lutil ${GNUSTEP_OBJC_CFLAGS} -lcrypto)
+add_dependencies(System mach-o)
 
-install(TARGETS System.B.dylib DESTINATION "lib${SUFFIX}/darling")
+install(TARGETS System DESTINATION "lib${SUFFIX}/darling")
 

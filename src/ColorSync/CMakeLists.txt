@@ -24,7 +24,7 @@ set(ColorSync_SRCS
 
 add_library(ColorSync SHARED ${ColorSync_SRCS})
 target_link_libraries(ColorSync -Wl,--no-as-needed -lgnustep-corebase
-	objc.A.dylib CoreGraphics)
+	objcdarwin CoreGraphics)
 
 install(TARGETS ColorSync DESTINATION "lib${SUFFIX}/darling")
 

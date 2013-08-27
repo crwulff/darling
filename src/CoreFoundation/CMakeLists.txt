@@ -31,7 +31,7 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_library(CoreFoundation SHARED ${CoreFoundation_SRCS})
-target_link_libraries(CoreFoundation -Wl,--no-as-needed -lgnustep-corebase objc.A.dylib)
+target_link_libraries(CoreFoundation -Wl,--no-as-needed -lgnustep-corebase objcdarwin)
 
 install(TARGETS CoreFoundation DESTINATION "lib${SUFFIX}/darling")
 

@@ -28,7 +28,7 @@ set(CoreImage_SRCS
 )
 
 add_library(CoreImage SHARED ${CoreImage_SRCS})
-target_link_libraries(CoreImage -lgnustep-base objc.A.dylib)
+target_link_libraries(CoreImage -lgnustep-base objcdarwin)
 
 install(TARGETS CoreImage DESTINATION "lib${SUFFIX}/darling")
 
