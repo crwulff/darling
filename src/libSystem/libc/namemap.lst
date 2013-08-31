@@ -55,5 +55,12 @@ libintl_bindtextdomain;bindtextdomain
 libintl_bind_textdomain_codeset;bind_textdomain_codeset
 libintl_setlocale;setlocale
 
+# fts
+fts_open$INODE64;fts_open
+fts_read$INODE64;fts_read
+fts_close$INODE64;fts_close
+fts_set$INODE64;fts_set
+fts_children$INODE64;fts_children
+
 )"
 
