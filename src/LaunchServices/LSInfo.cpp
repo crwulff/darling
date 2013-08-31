@@ -24,6 +24,12 @@ CFArrayRef LSCopyApplicationURLsForURL(CFURLRef inURL, LSRolesMask inRoleMask)
   return NULL;
 }
 
+CFStringRef LSCopyDefaultHandlerForURLScheme(CFStringRef scheme)
+{
+  // TODO
+  return NULL;
+}
+
 OSStatus LSRegisterURL(CFURLRef inURL, Boolean inUpdate)
 {
   // TODO

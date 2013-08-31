@@ -29,6 +29,8 @@ enum {
 
 CFArrayRef LSCopyApplicationURLsForURL(CFURLRef inURL, LSRolesMask inRoleMask);
 
+CFStringRef LSCopyDefaultHandlerForURLScheme(CFStringRef scheme);
+
 OSStatus LSRegisterURL(CFURLRef inURL, Boolean inUpdate);
 
 }
