@@ -87,7 +87,7 @@ bool NameTranslator(char* symName)
 	else if (strncmp(symName, "CC_SHA", 6) == 0)
 	{
 		// libcrypto has these without the CC_
-		strcpy(symName, symName+3);
+		memmove(symName, symName+3, strlen(symName+3)+1);
 		return true;
 	}
 
