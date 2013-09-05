@@ -14,6 +14,7 @@
 #include "common/selector.h"
 #include <map>
 #include <queue>
+#include <vector>
 #include <cassert>
 #include "NSDarwinFramework.h"
 
@@ -68,6 +69,13 @@ __attribute__((constructor))
 
 void ProcessImageLoad(uint32_t image_index)
 {
+	// Mark off images as we process them. This can be called twice for the same image
+	// if the image was already added prior to RegisterAlreadyLoadedClasses being called.
+	static std::vector<bool> loadedImages;
+	if (loadedImages.size() <= image_index) loadedImages.resize(image_index+1, false);
+	if (loadedImages[image_index]) return;
+	loadedImages[image_index] = true;
+
 	const struct mach_header *mh = _dyld_get_image_header(image_index);
 	intptr_t slide = _dyld_get_image_vmaddr_slide(image_index);
 	const char *name = _dyld_get_image_name(image_index);
