@@ -19,8 +19,15 @@
 
 // Superclass references in Mach-O don't use classref
 // Neither do category class references
-std::map<const void*,Class> g_classPointers;
-std::queue<std::pair<Class,IMP>> g_pendingInitClasses;
+std::map<const void*,Class> & getClassPointers(void) {
+	static std::map<const void*,Class> g_classPointers;
+	return g_classPointers;
+}
+
+std::queue<std::pair<Class,IMP>> & getPendingInitClasses(void) {
+	static std::queue<std::pair<Class,IMP>> g_pendingInitClasses;
+	return g_pendingInitClasses;
+}
 
 extern id GetBundle(const char* filename);
 
@@ -29,7 +36,7 @@ void RegisterNativeClass(void* cls)
 	LOG << "Register Native Class @ " << cls << std::endl;
 
 	class_getSuperclass(reinterpret_cast<Class>(cls)); // HACK to force the class to be resolved
-	g_classPointers[cls] = reinterpret_cast<Class>(cls);
+	getClassPointers()[cls] = reinterpret_cast<Class>(cls);
 }
 
 static void ReplaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace)
@@ -105,6 +112,7 @@ void ProcessImageLoad(uint32_t image_index)
 	}
 
 	static SEL selInit = sel_getUid("load");
+	auto & g_pendingInitClasses = getPendingInitClasses();
 	while (!g_pendingInitClasses.empty())
 	{
 		auto pair = g_pendingInitClasses.front();

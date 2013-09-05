@@ -10,7 +10,7 @@
 #include "./protocol.h"
 #include "../TopologySort.h"
 
-extern std::map<const void*,Class> g_classPointers;
+extern std::map<const void*,Class> & getClassPointers(void);
 
 Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 {
@@ -19,6 +19,7 @@ Class RegisterClass(const class_t* cls, intptr_t slide, uint32_t image_index)
 		return nullptr;
 	}
 
+	auto & g_classPointers = getClassPointers();
 	auto itClass = g_classPointers.find(cls);
 	if (itClass != g_classPointers.end())
 	{

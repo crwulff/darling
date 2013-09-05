@@ -8,7 +8,7 @@
 #include <cassert>
 #include "selector.h"
 
-extern std::queue<std::pair<Class, IMP>> g_pendingInitClasses;
+extern std::queue<std::pair<Class, IMP>> & getPendingInitClasses(void);
 
 #include <string.h>
 #include <libdyld/dyld_public.h>
@@ -43,7 +43,7 @@ template<typename ListType> void ConvertMethodListGen(Class c, const ListType* l
 		class_addMethod(c, sel, imp, selType.c_str());
 
 		if (isMeta && strcmp(m->selName, "load") == 0)
-			g_pendingInitClasses.push(std::make_pair<objc_class*,IMP>((Class)c, *imp));
+			getPendingInitClasses().push(std::make_pair<objc_class*,IMP>((Class)c, *imp));
 	}
 }
 

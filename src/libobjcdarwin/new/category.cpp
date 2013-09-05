@@ -5,7 +5,7 @@
 #include "../../util/log.h"
 #include <map>
 
-extern std::map<const void*,Class> g_classPointers;
+extern std::map<const void*,Class> & getClassPointers(void);
 
 void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide, uint32_t image_index)
 {
@@ -25,7 +25,7 @@ void ProcessCategoriesNew(const struct mach_header* mh, intptr_t slide, uint32_t
 
 	for (size_t i = 0; i < size / sizeof(category_t*); i++)
 	{
-		// g_classPointers
+		auto & g_classPointers = getClassPointers();
 		category_t* cat = cats[i];
 		auto itClass = g_classPointers.find(cat->cls);
 		Class c;

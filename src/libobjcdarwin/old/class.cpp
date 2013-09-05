@@ -7,7 +7,7 @@
 #include <map>
 #include <algorithm>
 
-extern std::map<const void*,Class> g_classPointers;
+extern std::map<const void*,Class> & getClassPointers(void);
 
 Class RegisterClass(old_class* cls, bool hasExt)
 {
@@ -15,6 +15,7 @@ Class RegisterClass(old_class* cls, bool hasExt)
 	
 	const old_class* meta = cls->isa.cls;
 	Class conv, super;
+	auto & g_classPointers = getClassPointers();
 	/*
 	old_class* psuper = cls->super_class.cls;
 	auto itSuper = g_classPointers.find(psuper); // TODO: may not be needed, should always be a string
