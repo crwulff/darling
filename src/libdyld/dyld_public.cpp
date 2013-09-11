@@ -57,6 +57,11 @@ const char* _dyld_get_image_name(uint32_t image_index)
 	return MachOMgr::instance()->objectByIndex(image_index)->path().c_str();
 }
 
+bool _dyld_get_image_load_complete(uint32_t image_index)
+{
+	return MachOMgr::instance()->objectByIndex(image_index)->loadComplete();
+}
+
 void _dyld_register_method_symbol(uint32_t image_index, const char* name, void* addr)
 {
 #ifdef DEBUG

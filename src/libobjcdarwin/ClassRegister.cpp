@@ -69,12 +69,8 @@ __attribute__((constructor))
 
 void ProcessImageLoad(uint32_t image_index)
 {
-	// Mark off images as we process them. This can be called twice for the same image
-	// if the image was already added prior to RegisterAlreadyLoadedClasses being called.
-	static std::vector<bool> loadedImages;
-	if (loadedImages.size() <= image_index) loadedImages.resize(image_index+1, false);
-	if (loadedImages[image_index]) return;
-	loadedImages[image_index] = true;
+	// If the image is not completely loaded we will be notified later when it is
+	if (!_dyld_get_image_load_complete(image_index)) return;
 
 	const struct mach_header *mh = _dyld_get_image_header(image_index);
 	intptr_t slide = _dyld_get_image_vmaddr_slide(image_index);

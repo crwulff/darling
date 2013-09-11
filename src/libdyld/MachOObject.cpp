@@ -129,7 +129,8 @@ void MachOObject::load()
 	
 	setInitialSegmentProtection();
 	setupTLS();
-	
+
+	m_loadComplete = true;
 	MachOMgr::instance()->notifyAdd(this);
 	runInitializers();
 	

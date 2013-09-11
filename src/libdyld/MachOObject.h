@@ -71,6 +71,8 @@ public:
 	
 	// Returns true if this is a main module. Main module is an executable (as opposed to dynamic libraries)
 	bool isMainModule() const;
+
+	bool loadComplete(void) const { return m_loadComplete; }
 	
 	// Set the command line arguments before using run() to start the program
 	// Only applicable to main modules.
@@ -180,6 +182,7 @@ private:
 	char** m_argv = nullptr;
 	char** m_envp = nullptr;
 	bool m_noRecursion = false;
+	bool m_loadComplete = false;
 
 #ifdef DEBUG
 public:

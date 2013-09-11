@@ -46,6 +46,7 @@ const char* _dyld_get_image_name(uint32_t image_index);
 void* dyld_stub_binder_fixup(Darling::MachOObject** obj, uintptr_t lazyOffset);
 void _dyld_register_method_symbol(uint32_t image_index, const char* name, void* addr);
 void _dyld_finalize_symbols(uint32_t image_index);
+bool _dyld_get_image_load_complete(uint32_t image_index);
 
 char* getsectdata(const struct mach_header* header, const char* segname, const char* sectname, unsigned long* size);
 
